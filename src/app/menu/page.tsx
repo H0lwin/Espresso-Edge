@@ -1,6 +1,6 @@
+
 import type { Metadata } from 'next';
-import { MenuClientContent } from '@/components/sections/menu/MenuClientContent';
-import { AnimatedPage } from '@/components/shared/AnimatedPage';
+import MenuClient from '@/components/page-specific/MenuClient';
 
 export const metadata: Metadata = {
   title: 'Our Menu',
@@ -35,16 +35,6 @@ const menuItemsData: MenuItem[] = [
   { id: 's3', name: 'Spinach & Feta Quiche', category: 'Snacks', description: 'Savory quiche with spinach and feta cheese.', price: '$6.50', imageSrc: 'https://placehold.co/400x300.png', imageHint: 'quiche slice' },
 ];
 
-
 export default function MenuPage() {
-  return (
-    <AnimatedPage>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 pt-28 md:pt-32"> {/* Added pt for navbar */}
-        <h1 className="text-4xl md:text-5xl font-headline text-center text-secondary mb-12 md:mb-16">
-          Our Delicious Menu
-        </h1>
-        <MenuClientContent initialItems={menuItemsData} />
-      </div>
-    </AnimatedPage>
-  );
+  return <MenuClient menuItems={menuItemsData} />;
 }
