@@ -52,12 +52,12 @@ export function ProductCard({ id, name, description, price, imageSrc, imageHint,
         />
       </div>
       <div className="p-6 flex flex-col flex-grow text-right">
-        <div className="flex flex-row-reverse justify-start items-center mb-2 gap-2"> {/* Changed to flex-row-reverse and justify-start */}
-          <IconComponent className="h-6 w-6 text-primary flex-shrink-0" /> {/* Icon will be on the left of its container (visually) */}
-          <h3 className="text-xl font-headline text-secondary text-right flex-grow">{name}</h3> {/* Title on the right, takes space */}
+        <div className="flex flex-row-reverse justify-start items-center mb-2 gap-2">
+          <IconComponent className="h-6 w-6 text-primary flex-shrink-0" />
+          <h3 className="text-xl font-headline text-secondary text-right flex-grow">{name}</h3>
         </div>
         <p className="text-sm text-muted-foreground mb-4 flex-grow">{description}</p>
-        <div className="flex justify-between items-center mt-auto">
+        <div className="flex justify-between items-baseline mt-auto"> {/* Changed items-center to items-baseline */}
           <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={handleAddToCart}>
             <PlusCircle className="ms-2 h-4 w-4" />
             افزودن به سبد
@@ -68,3 +68,4 @@ export function ProductCard({ id, name, description, price, imageSrc, imageHint,
     </motion.div>
   );
 }
+
