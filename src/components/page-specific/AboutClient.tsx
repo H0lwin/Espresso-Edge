@@ -8,16 +8,16 @@ import { Users, Coffee, Milestone } from 'lucide-react';
 
 export default function AboutClient() {
   const timelineEvents = [
-    { year: '2020', title: 'Our Humble Beginnings', description: 'Espresso Edge was born from a shared passion for exceptional coffee and a dream to create a welcoming space for our community.', icon: Coffee },
-    { year: '2021', title: 'Growing Together', description: 'We expanded our menu, sourcing the finest beans and local ingredients, quickly becoming a beloved local spot.', icon: Milestone },
-    { year: '2023', title: 'A Hub for Coffee Lovers', description: 'Recognized for our quality and service, we continued to innovate, hosting workshops and community events.', icon: Users },
-    { year: 'Today', title: 'Brewing the Future', description: 'We remain committed to our craft, our customers, and our community, always striving to perfect your coffee experience.', icon: Coffee },
+    { year: '۱۳۹۹', title: 'شروع فروتنانه ما', description: 'اسپرسو اج از یک اشتیاق مشترک برای قهوه استثنایی و رویای ایجاد فضایی پذیرا برای جامعه ما متولد شد.', icon: Coffee },
+    { year: '۱۴۰۰', title: 'رشد با هم', description: 'ما منوی خود را گسترش دادیم، بهترین دانه‌ها و مواد اولیه محلی را تهیه کردیم و به سرعت به یک مکان محبوب محلی تبدیل شدیم.', icon: Milestone },
+    { year: '۱۴۰۲', title: 'مرکزی برای عاشقان قهوه', description: 'با شناخته شدن برای کیفیت و خدماتمان، به نوآوری ادامه دادیم و کارگاه‌ها و رویدادهای اجتماعی برگزار کردیم.', icon: Users },
+    { year: 'امروز', title: 'دم کردن آینده', description: 'ما به هنر، مشتریان و جامعه خود متعهد باقی می‌مانیم و همیشه در تلاش برای تکمیل تجربه قهوه شما هستیم.', icon: Coffee },
   ];
 
   const teamMembers = [
-    { id: '1', name: 'Alice Wonderland', role: 'Founder & Head Barista', imageSrc: 'https://placehold.co/300x300.png', imageHint: 'female barista smiling' },
-    { id: '2', name: 'Bob The Builder', role: 'Operations Manager', imageSrc: 'https://placehold.co/300x300.png', imageHint: 'male manager professional' },
-    { id: '3', name: 'Charlie Brown', role: 'Pastry Chef', imageSrc: 'https://placehold.co/300x300.png', imageHint: 'chef smiling pastry' },
+    { id: 't1', name: 'آلیس در سرزمین عجایب', role: 'موسس و باریستای ارشد', imageSrc: 'https://placehold.co/300x300.png', imageHint: 'female barista smiling' },
+    { id: 't2', name: 'باب معمار', role: 'مدیر عملیات', imageSrc: 'https://placehold.co/300x300.png', imageHint: 'male manager professional' },
+    { id: 't3', name: 'چارلی براون', role: 'سرآشپز شیرینی‌پزی', imageSrc: 'https://placehold.co/300x300.png', imageHint: 'chef smiling pastry' },
   ];
 
   const sectionVariants = {
@@ -26,7 +26,7 @@ export default function AboutClient() {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, x: -30 },
+    hidden: { opacity: 0, x: 30 }, // RTL: x: 30 for appearing from left
     visible: (i: number) => ({
       opacity: 1,
       x: 0,
@@ -51,13 +51,13 @@ export default function AboutClient() {
 
   return (
     <AnimatedPage>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 pt-28 md:pt-32"> {/* Added pt for navbar */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
         <motion.div variants={sectionVariants} initial="hidden" animate="visible">
           <h1 className="text-4xl md:text-5xl font-headline text-center text-secondary mb-8">
-            Our Story: Brewing with Passion
+            داستان ما: دم کردن با اشتیاق
           </h1>
           <p className="text-lg text-center text-muted-foreground max-w-3xl mx-auto mb-16">
-            At Espresso Edge, we believe that a great cup of coffee can change your day. Our journey started with a simple idea: to create a haven where quality, community, and craftsmanship meet.
+            در اسپرسو اج، ما معتقدیم که یک فنجان قهوه عالی می‌تواند روز شما را تغییر دهد. سفر ما با یک ایده ساده آغاز شد: ایجاد پناهگاهی که در آن کیفیت، جامعه و صنعتگری به هم می‌رسند.
           </p>
         </motion.div>
 
@@ -69,9 +69,10 @@ export default function AboutClient() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.3 }}
         >
-          <h2 className="text-3xl md:text-4xl font-headline text-center text-secondary mb-12">Our Journey</h2>
+          <h2 className="text-3xl md:text-4xl font-headline text-center text-secondary mb-12">سفر ما</h2>
           <div className="relative max-w-3xl mx-auto">
-            <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-primary/30 rounded-full transform -translate-x-1/2 hidden md:block"></div>
+            {/* RTL: Line on the right */}
+            <div className="absolute end-1/2 top-0 bottom-0 w-1 bg-primary/30 rounded-full transform translate-x-1/2 hidden md:block"></div>
             {timelineEvents.map((event, index) => {
               const Icon = event.icon;
               return (
@@ -84,18 +85,20 @@ export default function AboutClient() {
                   whileInView="visible"
                   viewport={{ once: true }}
                 >
-                  <div className={`w-full md:w-1/2 ${index % 2 === 0 ? 'md:pr-8 md:text-right' : 'md:pl-8 md:text-left md:order-2'}`}>
+                  {/* RTL: Adjust order and text alignment */}
+                  <div className={`w-full md:w-1/2 ${index % 2 === 0 ? 'md:ps-8 md:text-left' : 'md:pe-8 md:text-right md:order-2'}`}>
                     <div className="bg-card p-6 rounded-lg shadow-lg border border-border">
                       <div className="flex items-center mb-2">
-                        {index % 2 !== 0 && <Icon className="h-6 w-6 text-primary mr-3 md:hidden" />}
+                        {index % 2 !== 0 && <Icon className="h-6 w-6 text-primary me-3 md:hidden" />} {/* RTL: me-3 */}
                         <h3 className="text-xl font-headline text-primary">{event.year} - {event.title}</h3>
-                        {index % 2 === 0 && <Icon className="h-6 w-6 text-primary ml-3 md:hidden" />}
+                        {index % 2 === 0 && <Icon className="h-6 w-6 text-primary ms-3 md:hidden" />} {/* RTL: ms-3 */}
                       </div>
                       <p className="text-sm text-muted-foreground">{event.description}</p>
                     </div>
                   </div>
                   <div className="hidden md:flex w-1/2 items-center justify-center md:order-1">
-                    <div className="absolute left-1/2 transform -translate-x-1/2 z-10 bg-background p-2 rounded-full border-2 border-primary">
+                    {/* RTL: Line on the right of icons */}
+                    <div className="absolute end-1/2 transform translate-x-1/2 z-10 bg-background p-2 rounded-full border-2 border-primary">
                       <Icon className="h-6 w-6 text-primary" />
                     </div>
                   </div>
@@ -112,7 +115,7 @@ export default function AboutClient() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
         >
-          <h2 className="text-3xl md:text-4xl font-headline text-center text-secondary mb-12">Meet Our Team</h2>
+          <h2 className="text-3xl md:text-4xl font-headline text-center text-secondary mb-12">تیم ما را ملاقات کنید</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
             {teamMembers.map((member, index) => (
               <motion.div
@@ -129,7 +132,7 @@ export default function AboutClient() {
                     src={member.imageSrc}
                     alt={member.name}
                     fill
-                    objectFit="cover"
+                    style={{objectFit:"cover"}}
                     data-ai-hint={member.imageHint}
                   />
                 </div>

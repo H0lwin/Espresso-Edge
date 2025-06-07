@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 import HomeClient from '@/components/page-specific/HomeClient';
 
 export const metadata: Metadata = {
-  title: 'Home',
-  description: 'Welcome to Espresso Edge - your destination for the finest coffee, pastries, and a warm atmosphere.',
+  title: 'خانه', // Home
+  description: 'به اسپرسو اج خوش آمدید - مقصد شما برای بهترین قهوه، شیرینی‌ها و فضایی گرم.',
 };
 
 export default function HomePage() {

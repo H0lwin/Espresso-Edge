@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 import AboutClient from '@/components/page-specific/AboutClient';
 
 export const metadata: Metadata = {
-  title: 'About Us',
-  description: 'Learn about the story, passion, and team behind Espresso Edge.',
+  title: 'درباره ما', // About Us
+  description: 'با داستان، اشتیاق و تیم پشت اسپرسو اج آشنا شوید.',
 };
 
 export default function AboutPage() {

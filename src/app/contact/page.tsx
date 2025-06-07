@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 import ContactClient from '@/components/page-specific/ContactClient';
 
 export const metadata: Metadata = {
-  title: 'Contact Us',
-  description: 'Get in touch with Espresso Edge. Find our location, contact details, or send us a message.',
+  title: 'تماس با ما', // Contact Us
+  description: 'با اسپرسو اج در تماس باشید. مکان، اطلاعات تماس ما را بیابید یا برای ما پیام ارسال کنید.',
 };
 
 export default function ContactPage() {

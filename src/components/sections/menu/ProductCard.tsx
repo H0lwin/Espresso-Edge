@@ -1,18 +1,15 @@
+
 "use client";
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Coffee, CakeSlice, Sandwich } from 'lucide-react'; // Example icons
+import { Coffee, CakeSlice, Sandwich, PlusCircle } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
+import { useToast } from "@/hooks/use-toast";
+import type { MenuItem } from '@/app/menu/page'; // Ensure this path is correct
 
-interface ProductCardProps {
-  name: string;
-  description: string;
-  price: string;
-  imageSrc: string;
-  imageHint: string;
-  category: 'Coffee' | 'Pastries' | 'Snacks';
-}
+interface ProductCardProps extends MenuItem {} // Use MenuItem type and expect 'id'
 
 const categoryIcons = {
   Coffee: Coffee,
@@ -20,8 +17,20 @@ const categoryIcons = {
   Snacks: Sandwich,
 };
 
-export function ProductCard({ name, description, price, imageSrc, imageHint, category }: ProductCardProps) {
+export function ProductCard({ id, name, description, price, imageSrc, imageHint, category }: ProductCardProps) {
   const IconComponent = categoryIcons[category] || Coffee;
+  const { addItemToCart, openCart } = useCart();
+  const { toast } = useToast();
+
+  const handleAddToCart = () => {
+    const itemToAdd = { id, name, price, imageSrc, quantity: 1, category };
+    addItemToCart(itemToAdd);
+    toast({
+      title: "اضافه شد!",
+      description: `${name} به سبد خرید شما اضافه شد.`,
+    });
+    openCart(); // Open cart drawer/modal
+  };
 
   return (
     <motion.div
@@ -36,22 +45,23 @@ export function ProductCard({ name, description, price, imageSrc, imageHint, cat
         <Image
           src={imageSrc}
           alt={name}
-          layout="fill"
-          objectFit="cover"
+          fill // Changed from layout="fill" to fill
+          style={{objectFit:"cover"}} // Changed from objectFit="cover" to style
           data-ai-hint={imageHint}
         />
       </div>
-      <div className="p-6 flex flex-col flex-grow">
+      <div className="p-6 flex flex-col flex-grow text-right"> {/* RTL: text-right */}
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-headline text-secondary">{name}</h3>
-          <IconComponent className="h-6 w-6 text-primary flex-shrink-0 ml-2" />
+          <IconComponent className="h-6 w-6 text-primary flex-shrink-0 me-2 order-first" /> {/* RTL: me-2, order-first */}
+          <h3 className="text-xl font-headline text-secondary order-last">{name}</h3> {/* RTL: order-last */}
         </div>
         <p className="text-sm text-muted-foreground mb-4 flex-grow">{description}</p>
         <div className="flex justify-between items-center mt-auto">
-          <p className="text-lg font-semibold text-primary">{price}</p>
-          <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-            Add to Order
+          <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={handleAddToCart}>
+            <PlusCircle className="ms-2 h-4 w-4" /> {/* RTL: ms-2 */}
+            افزودن به سبد
           </Button>
+          <p className="text-lg font-semibold text-primary">{price}</p>
         </div>
       </div>
     </motion.div>

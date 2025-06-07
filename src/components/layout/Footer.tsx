@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -13,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 
 
 const NewsletterSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
+  email: z.string().email({ message: "آدرس ایمیل نامعتبر است" }),
 });
 type NewsletterFormData = z.infer<typeof NewsletterSchema>;
 
@@ -25,37 +26,47 @@ export function Footer() {
   });
 
   const onSubmit: SubmitHandler<NewsletterFormData> = async (data) => {
-    // Placeholder for newsletter signup logic
-    console.log('Newsletter signup:', data.email);
+    console.log('عضویت در خبرنامه:', data.email);
     toast({
-      title: "Subscribed!",
-      description: "Thanks for joining our newsletter.",
+      title: "عضو شدید!",
+      description: "از اینکه به خبرنامه ما پیوستید متشکریم.",
     });
     reset();
   };
 
   const socialLinks = [
-    { href: '#', icon: Facebook, label: 'Facebook' },
-    { href: '#', icon: Instagram, label: 'Instagram' },
-    { href: '#', icon: Twitter, label: 'Twitter' },
+    { href: '#', icon: Facebook, label: 'فیسبوک' },
+    { href: '#', icon: Instagram, label: 'اینستاگرام' },
+    { href: '#', icon: Twitter, label: 'توییتر' },
   ];
 
   return (
     <footer className="bg-secondary text-secondary-foreground py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+          
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
             viewport={{ once: true }}
-            className="flex flex-col items-center md:items-start"
+            className="text-center md:text-right" // RTL: text-right
           >
-            <Link href="/" className="flex items-center gap-2 text-2xl font-headline font-bold mb-4">
-              <CoffeeCupIcon className="h-8 w-8" />
-              Espresso Edge
-            </Link>
-            <p className="text-sm text-center md:text-left">&copy; {new Date().getFullYear()} Espresso Edge. All rights reserved.</p>
+            <h3 className="text-xl font-headline mb-3">به روز بمانید</h3>
+            <p className="text-sm mb-3">برای دریافت آخرین اخبار و پیشنهادات در خبرنامه ما ثبت نام کنید.</p>
+            <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2">
+              <Input
+                type="email"
+                placeholder="ایمیل خود را وارد کنید"
+                className="bg-secondary-foreground text-secondary placeholder:text-muted-foreground border-border focus:ring-primary text-right" // RTL: text-right
+                {...register("email")}
+                aria-invalid={errors.email ? "true" : "false"}
+              />
+              <Button type="submit" variant="default" size="icon" aria-label="عضویت در خبرنامه">
+                <Send className="h-5 w-5" />
+              </Button>
+            </form>
+            {errors.email && <p className="text-sm text-destructive mt-1 text-right">{errors.email.message}</p>} {/* RTL: text-right */}
           </motion.div>
 
           <motion.div 
@@ -63,15 +74,15 @@ export function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true }}
-            className="text-center md:text-left"
+            className="text-center md:text-right" // RTL: text-right
           >
-            <h3 className="text-xl font-headline mb-3 flex items-center justify-center md:justify-start"><Clock className="mr-2 h-5 w-5" />Operating Hours</h3>
-            <p className="text-sm">Mon - Fri: 7:00 AM - 7:00 PM</p>
-            <p className="text-sm">Sat - Sun: 8:00 AM - 6:00 PM</p>
-            <div className="flex justify-center md:justify-start space-x-4 mt-4">
+            <h3 className="text-xl font-headline mb-3 flex items-center justify-center md:justify-end"><Clock className="ms-2 h-5 w-5" />ساعات کاری</h3> {/* RTL: ms-2 */}
+            <p className="text-sm">دوشنبه - جمعه: ۷:۰۰ صبح - ۷:۰۰ عصر</p>
+            <p className="text-sm">شنبه - یکشنبه: ۸:۰۰ صبح - ۶:۰۰ عصر</p>
+            <div className="flex justify-center md:justify-end space-x-4 space-x-reverse mt-4"> {/* RTL: space-x-reverse, md:justify-end */}
               {socialLinks.map((link) => (
                 <Link key={link.label} href={link.href} aria-label={link.label} target="_blank" rel="noopener noreferrer">
-                  <motion.div whileHover={{ scale: 1.2, rotate: 5 }} whileTap={{ scale: 0.9 }}>
+                  <motion.div whileHover={{ scale: 1.2, rotate: -5 }} whileTap={{ scale: 0.9 }}> {/* RTL: rotate -5 */}
                     <link.icon className="h-6 w-6 hover:text-primary transition-colors" />
                   </motion.div>
                 </Link>
@@ -82,26 +93,17 @@ export function Footer() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            transition={{ duration: 0.5 }}
             viewport={{ once: true }}
-            className="text-center md:text-left"
+            className="flex flex-col items-center md:items-end" // RTL: md:items-end
           >
-            <h3 className="text-xl font-headline mb-3">Stay Updated</h3>
-            <p className="text-sm mb-3">Sign up for our newsletter to get the latest news and offers.</p>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="bg-secondary-foreground text-secondary placeholder:text-muted-foreground border-border focus:ring-primary"
-                {...register("email")}
-                aria-invalid={errors.email ? "true" : "false"}
-              />
-              <Button type="submit" variant="default" size="icon" aria-label="Subscribe to newsletter">
-                <Send className="h-5 w-5" />
-              </Button>
-            </form>
-            {errors.email && <p className="text-sm text-destructive mt-1">{errors.email.message}</p>}
+            <Link href="/" className="flex items-center gap-2 text-2xl font-headline font-bold mb-4">
+              اسپرسو اج
+              <CoffeeCupIcon className="h-8 w-8" />
+            </Link>
+            <p className="text-sm text-center md:text-right">&copy; {new Date().getFullYear()} اسپرسو اج. تمامی حقوق محفوظ است.</p> {/* RTL: md:text-right */}
           </motion.div>
+
         </div>
       </div>
     </footer>

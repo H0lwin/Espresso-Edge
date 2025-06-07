@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from './ProductCard';
-import type { MenuItem } from '@/app/menu/page'; // Import type from page.tsx
+import type { MenuItem } from '@/app/menu/page';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
 
@@ -12,7 +13,12 @@ interface MenuClientContentProps {
   initialItems: MenuItem[];
 }
 
-const categories: Array<'All' | MenuItem['category']> = ['All', 'Coffee', 'Pastries', 'Snacks'];
+const categoriesData: Array<{ value: 'All' | MenuItem['category'], label: string }> = [
+  { value: 'All', label: 'همه' },
+  { value: 'Coffee', label: 'قهوه' },
+  { value: 'Pastries', label: 'شیرینی‌ها' },
+  { value: 'Snacks', label: 'میان‌وعده‌ها' },
+];
 
 export function MenuClientContent({ initialItems }: MenuClientContentProps) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,29 +41,29 @@ export function MenuClientContent({ initialItems }: MenuClientContentProps) {
 
   return (
     <div>
-      <div className="mb-10 md:mb-12 flex flex-col sm:flex-row justify-between items-center gap-6">
-        <div className="flex flex-wrap justify-center sm:justify-start gap-3">
-          {categories.map(category => (
-            <Button
-              key={category}
-              variant={activeCategory === category ? 'default' : 'outline'}
-              onClick={() => setActiveCategory(category)}
-              className={`transition-all duration-200 ${activeCategory === category ? 'shadow-md' : 'hover:shadow-sm'}`}
-            >
-              {category}
-            </Button>
-          ))}
-        </div>
+      <div className="mb-10 md:mb-12 flex flex-col sm:flex-row-reverse justify-between items-center gap-6"> {/* RTL: sm:flex-row-reverse */}
         <div className="relative w-full sm:w-auto min-w-[250px]">
           <Input
             type="text"
-            placeholder="Search menu items..."
+            placeholder="جستجوی موارد منو..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 border-border focus:ring-primary"
-            aria-label="Search menu items"
+            className="ps-10 pe-4 py-2 border-border focus:ring-primary text-right" // RTL: ps-10, pe-4, text-right
+            aria-label="جستجوی موارد منو"
           />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Search className="absolute end-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" /> {/* RTL: end-3 */}
+        </div>
+        <div className="flex flex-wrap justify-center sm:justify-start gap-3">
+          {categoriesData.map(category => (
+            <Button
+              key={category.value}
+              variant={activeCategory === category.value ? 'default' : 'outline'}
+              onClick={() => setActiveCategory(category.value)}
+              className={`transition-all duration-200 ${activeCategory === category.value ? 'shadow-md' : 'hover:shadow-sm'}`}
+            >
+              {category.label}
+            </Button>
+          ))}
         </div>
       </div>
 
@@ -89,7 +95,7 @@ export function MenuClientContent({ initialItems }: MenuClientContentProps) {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          No items match your search or filter. Try something else!
+          موردی با جستجو یا فیلتر شما مطابقت ندارد. چیز دیگری را امتحان کنید!
         </motion.p>
       )}
     </div>

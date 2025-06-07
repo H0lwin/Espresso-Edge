@@ -1,15 +1,18 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  font-family: 'PT Sans', sans-serif;
+  font-family: 'PT Sans', 'Vazirmatn', sans-serif; /* Added Vazirmatn as an example Persian font */
   /* Placeholder for cozy texture - user can replace with an actual image */
   /* background-image: url('/textures/subtle-paper.png'); */
+  @apply bg-background text-foreground;
+  @apply selection:bg-primary selection:text-primary-foreground;
 }
 
 .font-headline {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Playfair Display', 'Vazirmatn', serif; /* Added Vazirmatn */
 }
 
 @layer base {
@@ -108,9 +111,5 @@ body {
 @layer base {
   * {
     @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-    @apply selection:bg-primary selection:text-primary-foreground;
   }
 }

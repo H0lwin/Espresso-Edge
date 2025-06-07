@@ -10,15 +10,15 @@ import { motion } from 'framer-motion';
 
 export default function ContactClient() {
   const contactDetails = [
-    { icon: MapPin, text: '123 Coffee Lane, Brewville, CA 90210', href: '#' },
-    { icon: Phone, text: '(555) 123-4567', href: 'tel:5551234567' },
+    { icon: MapPin, text: 'خیابان قهوه ۱۲۳، برشته‌شهر، کالیفرنیا ۹۰۲۱۰', href: '#' },
+    { icon: Phone, text: '۱۲۳۴-۵۶۷ (۵۵۵)', href: 'tel:5551234567' },
     { icon: Mail, text: 'hello@espressoedge.com', href: 'mailto:hello@espressoedge.com' },
   ];
 
   const socialLinks = [
-    { href: '#', icon: Facebook, label: 'Facebook' },
-    { href: '#', icon: Instagram, label: 'Instagram' },
-    { href: '#', icon: Twitter, label: 'Twitter' },
+    { href: '#', icon: Facebook, label: 'فیسبوک' },
+    { href: '#', icon: Instagram, label: 'اینستاگرام' },
+    { href: '#', icon: Twitter, label: 'توییتر' },
   ];
 
   const sectionVariants = {
@@ -27,7 +27,7 @@ export default function ContactClient() {
   };
   
   const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
+    hidden: { opacity: 0, x: 20 }, // RTL: x:20 (from left)
     visible: (i: number) => ({
       opacity: 1,
       x: 0,
@@ -37,46 +37,38 @@ export default function ContactClient() {
 
   return (
     <AnimatedPage>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 pt-28 md:pt-32"> {/* Added pt for navbar */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
         <motion.div variants={sectionVariants} initial="hidden" animate="visible">
           <h1 className="text-4xl md:text-5xl font-headline text-center text-secondary mb-8">
-            Get In Touch
+            با ما در تماس باشید
           </h1>
           <p className="text-lg text-center text-muted-foreground max-w-2xl mx-auto mb-16">
-            We'd love to hear from you! Whether you have a question, feedback, or just want to say hi, feel free to reach out.
+            خوشحال می‌شویم از شما بشنویم! چه سوالی داشته باشید، چه بازخوردی، یا فقط بخواهید سلامی کنید، با ما تماس بگیرید.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
-          <motion.div
-            className="bg-card p-8 rounded-lg shadow-xl border border-border"
-            variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount:0.3 }}
-          >
-            <h2 className="text-2xl font-headline text-secondary mb-6">Send Us a Message</h2>
-            <ContactForm />
-          </motion.div>
-
           <motion.div 
-            className="space-y-10"
+            className="space-y-10 md:order-last" // RTL: Contact info on the left, form on the right
             variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount:0.3 }}
           >
             <div>
-              <h2 className="text-2xl font-headline text-secondary mb-6">Contact Information</h2>
+              <h2 className="text-2xl font-headline text-secondary mb-6 text-right">اطلاعات تماس</h2> {/* RTL: text-right */}
               <ul className="space-y-4">
                 {contactDetails.map((item, index) => {
                   const Icon = item.icon;
                   return (
                     <motion.li 
                       key={index} 
-                      className="flex items-center text-muted-foreground"
+                      className="flex items-center text-muted-foreground text-right" // RTL: text-right
                       custom={index}
                       variants={itemVariants}
                       initial="hidden"
                       whileInView="visible"
                       viewport={{ once: true }}
                       >
-                      <Icon className="h-6 w-6 text-primary mr-4 flex-shrink-0" />
-                      <Link href={item.href} className="hover:text-primary transition-colors">{item.text}</Link>
+                      <Link href={item.href} className="hover:text-primary transition-colors flex-grow">{item.text}</Link>
+                      <Icon className="h-6 w-6 text-primary ms-4 flex-shrink-0" /> {/* RTL: ms-4 */}
                     </motion.li>
                   );
                 })}
@@ -84,7 +76,7 @@ export default function ContactClient() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-headline text-secondary mb-6">Find Us Here</h2>
+              <h2 className="text-2xl font-headline text-secondary mb-6 text-right">ما را اینجا پیدا کنید</h2> {/* RTL: text-right */}
               <motion.div 
                 className="rounded-lg overflow-hidden shadow-lg border border-border aspect-video"
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -94,7 +86,7 @@ export default function ContactClient() {
               >
                 <Image
                   src="https://placehold.co/600x400.png"
-                  alt="Map showing coffee shop location"
+                  alt="نقشه نشان‌دهنده مکان کافی شاپ"
                   width={600}
                   height={400}
                   className="w-full h-full object-cover"
@@ -104,8 +96,8 @@ export default function ContactClient() {
             </div>
             
             <div>
-              <h2 className="text-2xl font-headline text-secondary mb-4">Connect With Us</h2>
-              <div className="flex space-x-6">
+              <h2 className="text-2xl font-headline text-secondary mb-4 text-right">با ما در ارتباط باشید</h2> {/* RTL: text-right */}
+              <div className="flex space-x-6 space-x-reverse justify-end"> {/* RTL: space-x-reverse, justify-end */}
                 {socialLinks.map((link, index) => (
                   <motion.div
                     key={link.label}
@@ -124,6 +116,13 @@ export default function ContactClient() {
                 ))}
               </div>
             </div>
+          </motion.div>
+          <motion.div
+            className="bg-card p-8 rounded-lg shadow-xl border border-border md:order-first" // RTL: Form on the right
+            variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true, amount:0.3 }}
+          >
+            <h2 className="text-2xl font-headline text-secondary mb-6 text-right">برای ما پیام ارسال کنید</h2> {/* RTL: text-right */}
+            <ContactForm />
           </motion.div>
         </div>
       </div>

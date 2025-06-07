@@ -12,9 +12,9 @@ interface MenuClientProps {
 export default function MenuClient({ menuItems }: MenuClientProps) {
   return (
     <AnimatedPage>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 pt-28 md:pt-32"> {/* Added pt for navbar */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
         <h1 className="text-4xl md:text-5xl font-headline text-center text-secondary mb-12 md:mb-16">
-          Our Delicious Menu
+          منوی خوشمزه ما
         </h1>
         <MenuClientContent initialItems={menuItems} />
       </div>
