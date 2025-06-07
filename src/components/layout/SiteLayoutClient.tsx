@@ -2,16 +2,107 @@
 "use client";
 
 import type { ReactNode } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Toaster } from "@/components/ui/toaster";
 import { ShoppingCart } from '@/components/cart/ShoppingCart';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
-import OfflineIndicator from '@/components/shared/OfflineIndicator'; // Import OfflineIndicator
+import OfflineIndicator from '@/components/shared/OfflineIndicator';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+
+interface BeforeInstallPromptEvent extends Event {
+  readonly platforms: string[];
+  readonly userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed';
+    platform: string;
+  }>;
+  prompt(): Promise<void>;
+}
 
 export default function SiteLayoutClient({ children }: { children: ReactNode }) {
   const { user, isLoading: isAuthLoading } = useAuth();
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const { toast, dismiss } = useToast();
+  const installToastIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      const event = e as BeforeInstallPromptEvent;
+      setDeferredPrompt(event);
+
+      // Show custom install prompt only if not already shown or app not installed
+      if (!localStorage.getItem('espressoEdgePwaInstalled') && !installToastIdRef.current) {
+        const { id } = toast({
+          title: "نصب اپلیکیشن اسپرسو اج",
+          description: "برای تجربه بهتر و دسترسی سریع‌تر، اپلیکیشن ما را نصب کنید.",
+          duration: Infinity, // Keep it open until user interacts
+          action: (
+            <>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => handleInstallPrompt(id)}
+                className="me-2" // RTL: margin end
+              >
+                نصب
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  dismiss(id);
+                  installToastIdRef.current = null;
+                  // Optionally, set a flag to not show again for a while
+                }}
+              >
+                بعداً
+              </Button>
+            </>
+          ),
+        });
+        installToastIdRef.current = id;
+      }
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    const handleAppInstalled = () => {
+      console.log('PWA installed');
+      setDeferredPrompt(null);
+      localStorage.setItem('espressoEdgePwaInstalled', 'true');
+      if (installToastIdRef.current) {
+        dismiss(installToastIdRef.current);
+        installToastIdRef.current = null;
+      }
+    };
+
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, [toast, dismiss]);
+
+  const handleInstallPrompt = async (toastIdToDismiss?: string) => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response to the install prompt: ${outcome}`);
+      if (outcome === 'accepted') {
+        localStorage.setItem('espressoEdgePwaInstalled', 'true');
+      }
+      setDeferredPrompt(null); // Prompt can only be used once.
+      if (toastIdToDismiss) {
+        dismiss(toastIdToDismiss);
+        installToastIdRef.current = null;
+      }
+    }
+  };
 
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
@@ -51,7 +142,7 @@ export default function SiteLayoutClient({ children }: { children: ReactNode }) 
         <Footer />
         <Toaster />
         <ShoppingCart />
-        <OfflineIndicator /> {/* Add OfflineIndicator here */}
+        <OfflineIndicator />
       </body>
     </html>
   );
