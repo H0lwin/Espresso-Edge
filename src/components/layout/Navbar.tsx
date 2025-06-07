@@ -32,7 +32,7 @@ export function Navbar() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
   const { user, logout } = useAuth();
-  const { cartItems, toggleCart: openCartDrawer } = useCart(); // Renamed toggleCart to openCartDrawer for clarity
+  const { cartItems, toggleCart: openCartDrawer } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,11 +59,11 @@ export function Navbar() {
           <div className="md:hidden">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="باز کردن منو"> {/* Open menu */}
+                <Button variant="ghost" size="icon" aria-label="باز کردن منو">
                   <Menu className="h-7 w-7 text-secondary" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[280px] bg-background p-6"> {/* side="right" will open from right in RTL */}
+              <SheetContent side="right" className="w-[280px] bg-background p-6">
                 <div className="flex flex-col h-full">
                   <div className="flex justify-between items-center mb-8">
                      <Link href="/" className="flex items-center gap-2 text-xl font-headline font-bold text-secondary" onClick={() => setIsSheetOpen(false)}>
@@ -71,7 +71,7 @@ export function Navbar() {
                         اسپرسو اج
                       </Link>
                     <SheetClose asChild>
-                       <Button variant="ghost" size="icon" aria-label="بستن منو"> {/* Close menu */}
+                       <Button variant="ghost" size="icon" aria-label="بستن منو">
                         <X className="h-7 w-7 text-secondary" />
                       </Button>
                     </SheetClose>
@@ -91,8 +91,8 @@ export function Navbar() {
                   <div className="mt-auto pt-6 border-t border-border">
                     {user ? (
                       <div className="flex flex-col space-y-3">
-                        <span className="text-secondary font-medium text-center">سلام، {user.name || 'کاربر'}!</span>
-                        <Button variant="outline" onClick={() => { logout(); setIsSheetOpen(false); }} className="w-full">خروج</Button>
+                        <span className="text-secondary font-medium text-center">سلام، {user.name || 'کاربر گرامی'}!</span>
+                        <Button variant="outline" onClick={() => { logout(); setIsSheetOpen(false); }} className="w-full">خروج از حساب</Button>
                       </div>
                     ) : (
                       <div className="flex flex-col space-y-3">
@@ -136,22 +136,24 @@ export function Navbar() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                       <Avatar className="h-9 w-9">
-                        <AvatarImage src={user.avatarUrl || `https://placehold.co/100x100.png?text=${user.name?.charAt(0) || 'U'}`} alt={user.name || "User"} data-ai-hint="user avatar" />
-                        <AvatarFallback>{user.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                        <AvatarImage src={user.avatarUrl || `https://placehold.co/100x100.png?text=${user.name?.charAt(0) || 'ک'}`} alt={user.name || "کاربر"} data-ai-hint="user avatar" />
+                        <AvatarFallback>{user.name?.charAt(0).toUpperCase() || 'ک'}</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuContent align="end" className="w-56 text-right">
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">سلام، {user.name || 'کاربر'}</p>
+                        <p className="text-sm font-medium leading-none">سلام، {user.name || 'کاربر گرامی'}</p>
                         <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
+                    {/* Add links to profile or orders page here if they exist */}
+                    {/* <DropdownMenuItem asChild><Link href="/profile">پروفایل من</Link></DropdownMenuItem> */}
                     <DropdownMenuItem onClick={logout}>
-                      <LogOut className="me-2 h-4 w-4" />
-                      <span>خروج</span>
+                      <LogOut className="ms-2 h-4 w-4" /> {/* RTL: Changed me-2 to ms-2 */}
+                      <span>خروج از حساب</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

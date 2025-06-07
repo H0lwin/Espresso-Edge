@@ -1,13 +1,13 @@
 
 "use client";
 
-import { ProductCard } from '@/components/sections/menu/ProductCard'; // Re-using ProductCard
+import { ProductCard } from '@/components/sections/menu/ProductCard';
 import { AnimatedPage } from '@/components/shared/AnimatedPage';
-import type { MenuItem } from '@/app/menu/page'; // Ensure this path is correct
+import type { MenuItem } from '@/app/menu/page';
 import { motion } from 'framer-motion';
 
 interface ProductsClientProps {
-  products: MenuItem[]; // Using MenuItem type for now
+  products: MenuItem[];
 }
 
 export default function ProductsClient({ products }: ProductsClientProps) {
@@ -55,7 +55,7 @@ export default function ProductsClient({ products }: ProductsClientProps) {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            در حال حاضر محصولی برای نمایش وجود ندارد. به زودی برمی‌گردیم!
+            در حال حاضر محصولی برای نمایش وجود ندارد. لطفاً بعداً دوباره بررسی کنید!
           </motion.p>
         )}
       </div>

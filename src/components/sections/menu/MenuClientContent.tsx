@@ -41,17 +41,17 @@ export function MenuClientContent({ initialItems }: MenuClientContentProps) {
 
   return (
     <div>
-      <div className="mb-10 md:mb-12 flex flex-col sm:flex-row-reverse justify-between items-center gap-6"> {/* RTL: sm:flex-row-reverse */}
+      <div className="mb-10 md:mb-12 flex flex-col sm:flex-row-reverse justify-between items-center gap-6">
         <div className="relative w-full sm:w-auto min-w-[250px]">
           <Input
             type="text"
-            placeholder="جستجوی موارد منو..."
+            placeholder="جستجوی آیتم‌های منو..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="ps-10 pe-4 py-2 border-border focus:ring-primary text-right" // RTL: ps-10, pe-4, text-right
-            aria-label="جستجوی موارد منو"
+            className="ps-10 pe-4 py-2 border-border focus:ring-primary text-right"
+            aria-label="جستجوی آیتم‌های منو"
           />
-          <Search className="absolute end-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" /> {/* RTL: end-3 */}
+          <Search className="absolute end-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         </div>
         <div className="flex flex-wrap justify-center sm:justify-start gap-3">
           {categoriesData.map(category => (
@@ -95,7 +95,7 @@ export function MenuClientContent({ initialItems }: MenuClientContentProps) {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          موردی با جستجو یا فیلتر شما مطابقت ندارد. چیز دیگری را امتحان کنید!
+          موردی با جستجو یا فیلتر شما مطابقت ندارد. لطفاً عبارت دیگری را امتحان کنید!
         </motion.p>
       )}
     </div>

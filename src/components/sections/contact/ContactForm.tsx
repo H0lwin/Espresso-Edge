@@ -26,11 +26,11 @@ export function ContactForm() {
   });
 
   const onSubmit: SubmitHandler<ContactFormData> = async (data) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
     console.log(data);
     toast({
       title: "پیام ارسال شد!",
-      description: "از تماس شما متشکریم. به زودی با شما تماس خواهیم گرفت.",
+      description: "از تماس شما متشکریم. به زودی پاسخ خواهیم داد.",
     });
     reset();
   };
@@ -50,7 +50,7 @@ export function ContactForm() {
         <Label htmlFor="name" className={`float-right ${errors.name ? "text-destructive" : "text-muted-foreground"}`}>نام کامل</Label> {/* RTL: float-right */}
         <Input
           id="name"
-          placeholder="مثلا: جان دو"
+          placeholder="مثلا: سارا رضایی"
           aria-invalid={errors.name ? "true" : "false"}
           className={`text-right ${errors.name ? "border-destructive focus:ring-destructive" : "border-border focus:ring-primary"}`} // RTL: text-right
           {...register("name")}
@@ -63,7 +63,7 @@ export function ContactForm() {
         <Input
           id="email"
           type="email"
-          placeholder="jane.doe@example.com"
+          placeholder="sara.rezaei@example.com"
           aria-invalid={errors.email ? "true" : "false"}
           className={`text-right ${errors.email ? "border-destructive focus:ring-destructive" : "border-border focus:ring-primary"}`} // RTL: text-right
           {...register("email")}
@@ -75,7 +75,7 @@ export function ContactForm() {
         <Label htmlFor="message" className={`float-right ${errors.message ? "text-destructive" : "text-muted-foreground"}`}>پیام شما</Label> {/* RTL: float-right */}
         <Textarea
           id="message"
-          placeholder="به ما بگویید چگونه می‌توانیم کمک کنیم..."
+          placeholder="بفرمایید چطور می‌توانیم کمکتان کنیم..."
           rows={5}
           aria-invalid={errors.message ? "true" : "false"}
           className={`text-right ${errors.message ? "border-destructive focus:ring-destructive" : "border-border focus:ring-primary"}`} // RTL: text-right

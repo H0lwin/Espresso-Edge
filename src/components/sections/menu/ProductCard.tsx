@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Coffee, CakeSlice, Sandwich, PlusCircle } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useToast } from "@/hooks/use-toast";
-import type { MenuItem } from '@/app/menu/page'; // Ensure this path is correct
+import type { MenuItem } from '@/app/menu/page';
 
-interface ProductCardProps extends MenuItem {} // Use MenuItem type and expect 'id'
+interface ProductCardProps extends MenuItem {}
 
 const categoryIcons = {
   Coffee: Coffee,
@@ -23,13 +23,13 @@ export function ProductCard({ id, name, description, price, imageSrc, imageHint,
   const { toast } = useToast();
 
   const handleAddToCart = () => {
-    const itemToAdd = { id, name, price, imageSrc, quantity: 1, category };
+    const itemToAdd = { id, name, price, imageSrc, quantity: 1, category, description, imageHint }; // Ensure all MenuItem fields are passed
     addItemToCart(itemToAdd);
     toast({
       title: "اضافه شد!",
-      description: `${name} به سبد خرید شما اضافه شد.`,
+      description: `«${name}» به سبد خرید شما اضافه شد.`,
     });
-    openCart(); // Open cart drawer/modal
+    openCart();
   };
 
   return (
@@ -45,20 +45,21 @@ export function ProductCard({ id, name, description, price, imageSrc, imageHint,
         <Image
           src={imageSrc}
           alt={name}
-          fill // Changed from layout="fill" to fill
-          style={{objectFit:"cover"}} // Changed from objectFit="cover" to style
+          fill
+          style={{objectFit:"cover"}}
           data-ai-hint={imageHint}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
       </div>
-      <div className="p-6 flex flex-col flex-grow text-right"> {/* RTL: text-right */}
+      <div className="p-6 flex flex-col flex-grow text-right">
         <div className="flex justify-between items-start mb-2">
-          <IconComponent className="h-6 w-6 text-primary flex-shrink-0 me-2 order-first" /> {/* RTL: me-2, order-first */}
-          <h3 className="text-xl font-headline text-secondary order-last">{name}</h3> {/* RTL: order-last */}
+          <IconComponent className="h-6 w-6 text-primary flex-shrink-0 order-first" />
+          <h3 className="text-xl font-headline text-secondary order-last ms-2">{name}</h3>
         </div>
         <p className="text-sm text-muted-foreground mb-4 flex-grow">{description}</p>
         <div className="flex justify-between items-center mt-auto">
           <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={handleAddToCart}>
-            <PlusCircle className="ms-2 h-4 w-4" /> {/* RTL: ms-2 */}
+            <PlusCircle className="ms-2 h-4 w-4" />
             افزودن به سبد
           </Button>
           <p className="text-lg font-semibold text-primary">{price}</p>
