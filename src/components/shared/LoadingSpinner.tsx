@@ -11,7 +11,7 @@ export default function LoadingSpinner() {
         <CoffeeCupIcon className="h-10 w-10 text-primary" />
       </div>
       <div className="flex items-center text-xl font-headline text-secondary">
-        <span>در حال بارگذاری اسپرسو اج...</span>
+        <span className="font-body">در حال بارگذاری اسپرسو اج...</span>
       </div>
     </div>
   );

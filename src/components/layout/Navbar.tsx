@@ -54,73 +54,10 @@ export function Navbar() {
       transition={{ type: 'spring', stiffness: 120, damping: 20 }}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-20 items-center justify-between">
-          {/* Mobile Menu Trigger - Moved to the left for RTL */}
-          <div className="md:hidden">
-            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="باز کردن منو">
-                  <Menu className="h-7 w-7 text-secondary" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[280px] bg-background p-6">
-                <div className="flex flex-col h-full">
-                  <div className="flex justify-between items-center mb-8">
-                     <Link href="/" className="flex items-center gap-2 text-xl font-headline font-bold text-secondary" onClick={() => setIsSheetOpen(false)}>
-                        <CoffeeCupIcon className="h-7 w-7" />
-                        اسپرسو اج
-                      </Link>
-                    <SheetClose asChild>
-                       <Button variant="ghost" size="icon" aria-label="بستن منو">
-                        <X className="h-7 w-7 text-secondary" />
-                      </Button>
-                    </SheetClose>
-                  </div>
-                  <nav className="flex flex-col space-y-6">
-                    {navItems.map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className="text-xl font-medium text-secondary hover:text-primary transition-colors"
-                        onClick={() => setIsSheetOpen(false)}
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </nav>
-                  <div className="mt-auto pt-6 border-t border-border">
-                    {user ? (
-                      <div className="flex flex-col space-y-3">
-                        <span className="text-secondary font-medium text-center">سلام، {user.name || 'کاربر گرامی'}!</span>
-                        <Button variant="outline" onClick={() => { logout(); setIsSheetOpen(false); }} className="w-full">خروج از حساب</Button>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col space-y-3">
-                        <Button asChild className="w-full" onClick={() => setIsSheetOpen(false)}><Link href="/auth/login">ورود</Link></Button>
-                        <Button asChild variant="outline" className="w-full" onClick={() => setIsSheetOpen(false)}><Link href="/auth/register">ثبت نام</Link></Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+        <div className="flex h-20 items-center justify-between"> {/* Changed from single justify-between to allow flex-grow on nav */}
           
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-6 items-center">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-lg font-medium text-secondary hover:text-primary transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Auth Links & Cart - Moved to the left for RTL */}
-          <div className="flex items-center gap-3">
+          {/* Left Group (for RTL): Actions - Cart, Auth (Desktop), Mobile Menu Trigger */}
+          <div className="flex items-center gap-2 sm:gap-3">
             <Button variant="ghost" size="icon" onClick={openCartDrawer} className="relative">
               <ShoppingCartIcon className="h-6 w-6 text-secondary hover:text-primary transition-colors" />
               {totalCartItems > 0 && (
@@ -130,6 +67,8 @@ export function Navbar() {
               )}
               <span className="sr-only">سبد خرید</span>
             </Button>
+
+            {/* Desktop Auth Links */}
             <div className="hidden md:flex items-center gap-3">
               {user ? (
                 <DropdownMenu>
@@ -149,10 +88,8 @@ export function Navbar() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {/* Add links to profile or orders page here if they exist */}
-                    {/* <DropdownMenuItem asChild><Link href="/profile">پروفایل من</Link></DropdownMenuItem> */}
                     <DropdownMenuItem onClick={logout}>
-                      <LogOut className="ms-2 h-4 w-4" /> {/* RTL: Changed me-2 to ms-2 */}
+                      <LogOut className="ms-2 h-4 w-4" />
                       <span>خروج از حساب</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -164,13 +101,81 @@ export function Navbar() {
                 </>
               )}
             </div>
+            
+            {/* Mobile Menu Trigger */}
+            <div className="md:hidden">
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="باز کردن منو">
+                    <Menu className="h-7 w-7 text-secondary" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[280px] bg-background p-6"> {/* side="right" for RTL menu */}
+                  <div className="flex flex-col h-full">
+                    <div className="flex justify-between items-center mb-8">
+                       <Link href="/" className="flex items-center gap-2 text-xl font-headline font-bold text-secondary" onClick={() => setIsSheetOpen(false)}>
+                          <CoffeeCupIcon className="h-7 w-7" />
+                          اسپرسو اج
+                        </Link>
+                      <SheetClose asChild>
+                         <Button variant="ghost" size="icon" aria-label="بستن منو">
+                          <X className="h-7 w-7 text-secondary" />
+                        </Button>
+                      </SheetClose>
+                    </div>
+                    <nav className="flex flex-col space-y-6">
+                      {navItems.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className="text-xl font-medium text-secondary hover:text-primary transition-colors"
+                          onClick={() => setIsSheetOpen(false)}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </nav>
+                    {/* Mobile Auth Links */}
+                    <div className="mt-auto pt-6 border-t border-border">
+                      {user ? (
+                        <div className="flex flex-col space-y-3">
+                          <span className="text-secondary font-medium text-center">سلام، {user.name || 'کاربر گرامی'}!</span>
+                          <Button variant="outline" onClick={() => { logout(); setIsSheetOpen(false); }} className="w-full">خروج از حساب</Button>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col space-y-3">
+                          <Button asChild className="w-full" onClick={() => setIsSheetOpen(false)}><Link href="/auth/login">ورود</Link></Button>
+                          <Button asChild variant="outline" className="w-full" onClick={() => setIsSheetOpen(false)}><Link href="/auth/register">ثبت نام</Link></Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
 
-          {/* Logo - Moved to the right for RTL */}
-          <Link href="/" className="flex items-center gap-2 text-2xl font-headline font-bold text-secondary hover:text-primary transition-colors">
-            <CoffeeCupIcon className="h-8 w-8" />
-            اسپرسو اج {/* Espresso Edge */}
-          </Link>
+          {/* Center: Desktop Navigation (takes up remaining space and centers its items) */}
+          <nav className="hidden md:flex flex-grow justify-center items-center space-x-6 mx-4">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="text-lg font-medium text-secondary hover:text-primary transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          
+          {/* Right Group (for RTL): Logo */}
+          <div> {/* This div ensures the Link itself doesn't stretch if flex-grow were on parent */}
+            <Link href="/" className="flex items-center gap-2 text-2xl font-headline font-bold text-secondary hover:text-primary transition-colors">
+              <CoffeeCupIcon className="h-8 w-8" />
+              اسپرسو اج
+            </Link>
+          </div>
+
         </div>
       </div>
     </motion.header>
