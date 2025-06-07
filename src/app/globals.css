@@ -69,8 +69,8 @@ html {
     --popover: 36 56% 95%;
     --popover-foreground: 25 32% 15%;
 
-    --primary: 20 60% 50%; /* #CC6633 Burnt Orange - for interactive elements */
-    --primary-foreground: 36 100% 98%; /* A very light color for text on primary */
+    --primary: 20 60% 40%; /* #A35229 Darker Burnt Orange - for interactive elements */
+    --primary-foreground: 0 0% 100%; /* Pure White */
 
     --secondary: 25 32% 37%; /* #6F4E37 Deep Brown - for other elements */
     --secondary-foreground: 36 56% 90%; /* Light Tan text on Deep Brown */
@@ -86,7 +86,7 @@ html {
 
     --border: 25 32% 75%; /* Border color based on brown palette */
     --input: 36 56% 95%; /* Input background - similar to card */
-    --ring: 20 60% 50%; /* Ring color (Burnt Orange) */
+    --ring: 20 60% 40%; /* Ring color (Darker Burnt Orange) */
     
     --radius: 0.5rem;
 
@@ -116,8 +116,8 @@ html {
     --popover: 25 32% 15%;
     --popover-foreground: 36 56% 90%;
 
-    --primary: 20 60% 50%; /* Burnt Orange */
-    --primary-foreground: 25 32% 10%; 
+    --primary: 20 60% 40%; /* #A35229 Darker Burnt Orange */
+    --primary-foreground: 0 0% 100%; /* Pure White */
 
     --secondary: 36 56% 80%; /* Lighter Tan for secondary elements in dark mode */
     --secondary-foreground: 25 32% 15%;
@@ -125,15 +125,15 @@ html {
     --muted: 25 32% 20%;
     --muted-foreground: 36 56% 70%;
 
-    --accent: 20 60% 55%; /* Slightly lighter burnt orange for dark mode accent */
-    --accent-foreground: 25 32% 10%;
+    --accent: 20 60% 45%; /* #B85C2E - a slightly lighter shade of the new primary for accent */
+    --accent-foreground: 0 0% 100%; /* Pure White */
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 25 32% 25%;
     --input: 25 32% 20%;
-    --ring: 20 60% 50%;
+    --ring: 20 60% 40%; /* Darker Burnt Orange */
     
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
