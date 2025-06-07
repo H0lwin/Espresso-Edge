@@ -40,6 +40,7 @@ export default function HomeClient() {
           fill
           objectFit="cover"
           priority
+          sizes="100vw"
           className="z-0"
           data-ai-hint="coffee shop interior"
         />

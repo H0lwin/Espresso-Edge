@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Menu, X, User, LogOut, ShoppingCart as ShoppingCartIcon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { CoffeeCupIcon } from '@/components/shared/CoffeeCupIcon';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
@@ -23,7 +23,6 @@ import {
 const navItems = [
   { href: '/', label: 'خانه' },
   { href: '/menu', label: 'منو' },
-  // { href: '/products', label: 'محصولات' }, // Removed products link
   { href: '/about', label: 'درباره ما' },
   { href: '/contact', label: 'تماس با ما' },
 ];
@@ -112,44 +111,42 @@ export function Navbar() {
                     <Menu className="h-7 w-7 text-secondary" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[280px] bg-background p-6"> {/* Mobile menu from right for RTL */}
-                  <div className="flex flex-col h-full">
-                    <div className="flex justify-between items-center mb-8">
-                       <Link href="/" className="flex items-center gap-2 text-xl font-headline font-bold text-secondary" onClick={() => setIsSheetOpen(false)}>
+                <SheetContent side="right" className="w-[280px] bg-background p-6 flex flex-col"> {/* Mobile menu from right for RTL */}
+                  <SheetHeader className="flex flex-row justify-between items-center mb-8 text-right">
+                     <SheetTitle asChild>
+                        <Link href="/" className="flex items-center gap-2 text-xl font-headline font-bold text-secondary" onClick={() => setIsSheetOpen(false)}>
                           <CoffeeCupIcon className="h-7 w-7" />
                           اسپرسو اج
                         </Link>
-                      <SheetClose asChild>
-                         <Button variant="ghost" size="icon" aria-label="بستن منو">
-                          <X className="h-7 w-7 text-secondary" />
-                        </Button>
-                      </SheetClose>
-                    </div>
-                    <nav className="flex flex-col space-y-6 text-right">
-                      {navItems.map((item) => (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className="text-xl font-medium text-secondary hover:text-primary transition-colors"
-                          onClick={() => setIsSheetOpen(false)}
-                        >
-                          {item.label}
-                        </Link>
-                      ))}
-                    </nav>
-                    <div className="mt-auto pt-6 border-t border-border">
-                      {mounted && user ? (
-                        <div className="flex flex-col space-y-3">
-                          <span className="text-secondary font-medium text-center">سلام، {user.name || 'کاربر گرامی'}!</span>
-                          <Button variant="outline" onClick={() => { logout(); setIsSheetOpen(false); }} className="w-full">خروج از حساب</Button>
-                        </div>
-                      ) : mounted ? (
-                        <div className="flex flex-col space-y-3">
-                          <Button asChild className="w-full" onClick={() => setIsSheetOpen(false)}><Link href="/auth/login">ورود</Link></Button>
-                          <Button asChild variant="outline" className="w-full" onClick={() => setIsSheetOpen(false)}><Link href="/auth/register">ثبت نام</Link></Button>
-                        </div>
-                      ) : null}
-                    </div>
+                      </SheetTitle>
+                      {/* Default SheetClose is part of SheetContent, or place custom one here */}
+                  </SheetHeader>
+                  
+                  <nav className="flex flex-col space-y-6 text-right mb-auto">
+                    {navItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="text-xl font-medium text-secondary hover:text-primary transition-colors"
+                        onClick={() => setIsSheetOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </nav>
+
+                  <div className="mt-auto pt-6 border-t border-border">
+                    {mounted && user ? (
+                      <div className="flex flex-col space-y-3">
+                        <span className="text-secondary font-medium text-center">سلام، {user.name || 'کاربر گرامی'}!</span>
+                        <Button variant="outline" onClick={() => { logout(); setIsSheetOpen(false); }} className="w-full">خروج از حساب</Button>
+                      </div>
+                    ) : mounted ? (
+                      <div className="flex flex-col space-y-3">
+                        <Button asChild className="w-full" onClick={() => setIsSheetOpen(false)}><Link href="/auth/login">ورود</Link></Button>
+                        <Button asChild variant="outline" className="w-full" onClick={() => setIsSheetOpen(false)}><Link href="/auth/register">ثبت نام</Link></Button>
+                      </div>
+                    ) : null}
                   </div>
                 </SheetContent>
               </Sheet>

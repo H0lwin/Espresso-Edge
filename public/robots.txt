@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+# Sitemap: [Add sitemap URL here later if you generate one]

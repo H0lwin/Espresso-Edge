@@ -41,12 +41,8 @@ export function ShoppingCart() {
     <Sheet open={isCartOpen} onOpenChange={toggleCart}>
       <SheetContent className="flex flex-col w-full sm:max-w-md text-right" side="left"> {/* RTL: side="left" */}
         <SheetHeader className="text-right border-b pb-4"> {/* RTL: text-right */}
-          <SheetTitle className="flex items-center justify-between">
-            <span>سبد خرید شما</span>
-            <SheetClose asChild>
-              <Button variant="ghost" size="icon"><X className="h-5 w-5" /></Button>
-            </SheetClose>
-          </SheetTitle>
+          <SheetTitle>سبد خرید شما</SheetTitle>
+          {/* The default SheetClose from SheetContent will be used. If a custom one is needed in header, place it here as a sibling to SheetTitle */}
         </SheetHeader>
         
         {cartItems.length === 0 ? (
