@@ -54,7 +54,7 @@ export function Navbar() {
       transition={{ type: 'spring', stiffness: 120, damping: 20 }}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-20 items-center justify-between"> {/* Changed from single justify-between to allow flex-grow on nav */}
+        <div className="flex h-20 items-center justify-between">
           
           {/* Left Group (for RTL): Actions - Cart, Auth (Desktop), Mobile Menu Trigger */}
           <div className="flex items-center gap-2 sm:gap-3">
@@ -156,12 +156,12 @@ export function Navbar() {
           </div>
 
           {/* Center: Desktop Navigation (takes up remaining space and centers its items) */}
-          <nav className="hidden md:flex flex-grow justify-center items-center space-x-6 mx-4">
+          <nav className="hidden md:flex flex-grow justify-center items-center mx-4">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-lg font-medium text-secondary hover:text-primary transition-colors"
+                className="text-lg font-medium text-secondary hover:text-primary transition-colors mx-3"
               >
                 {item.label}
               </Link>
@@ -169,7 +169,7 @@ export function Navbar() {
           </nav>
           
           {/* Right Group (for RTL): Logo */}
-          <div> {/* This div ensures the Link itself doesn't stretch if flex-grow were on parent */}
+          <div> 
             <Link href="/" className="flex items-center gap-2 text-2xl font-headline font-bold text-secondary hover:text-primary transition-colors">
               <CoffeeCupIcon className="h-8 w-8" />
               اسپرسو اج
