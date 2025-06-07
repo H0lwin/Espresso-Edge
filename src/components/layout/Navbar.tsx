@@ -23,7 +23,7 @@ import {
 const navItems = [
   { href: '/', label: 'خانه' },
   { href: '/menu', label: 'منو' },
-  { href: '/products', label: 'محصولات' },
+  // { href: '/products', label: 'محصولات' }, // Removed products link
   { href: '/about', label: 'درباره ما' },
   { href: '/contact', label: 'تماس با ما' },
 ];
@@ -58,6 +58,7 @@ export function Navbar() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           
+          {/* Actions: Cart, Auth, Mobile Menu Trigger - Visual Left */}
           <div className="flex items-center gap-2 sm:gap-3">
             <Button variant="ghost" size="icon" onClick={openCartDrawer} className="relative">
               <ShoppingCartIcon className="h-6 w-6 text-secondary hover:text-primary transition-colors" />
@@ -100,7 +101,7 @@ export function Navbar() {
                   <Button asChild><Link href="/auth/register">ثبت نام</Link></Button>
                 </>
               ) : (
-                 <div className="h-10 w-28" /> // Placeholder for auth buttons to prevent layout shift
+                 <div className="h-10 w-28" /> 
               )}
             </div>
             
@@ -111,7 +112,7 @@ export function Navbar() {
                     <Menu className="h-7 w-7 text-secondary" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[280px] bg-background p-6">
+                <SheetContent side="right" className="w-[280px] bg-background p-6"> {/* Mobile menu from right for RTL */}
                   <div className="flex flex-col h-full">
                     <div className="flex justify-between items-center mb-8">
                        <Link href="/" className="flex items-center gap-2 text-xl font-headline font-bold text-secondary" onClick={() => setIsSheetOpen(false)}>
@@ -124,7 +125,7 @@ export function Navbar() {
                         </Button>
                       </SheetClose>
                     </div>
-                    <nav className="flex flex-col space-y-6">
+                    <nav className="flex flex-col space-y-6 text-right">
                       {navItems.map((item) => (
                         <Link
                           key={item.href}
@@ -155,6 +156,7 @@ export function Navbar() {
             </div>
           </div>
 
+          {/* Navigation Links - Centered */}
           <nav className="hidden md:flex flex-grow justify-center items-center mx-4">
             {navItems.map((item) => (
               <Link
@@ -167,6 +169,7 @@ export function Navbar() {
             ))}
           </nav>
           
+          {/* Logo - Visual Right */}
           <div> 
             <Link href="/" className="flex items-center gap-2 text-2xl font-headline font-bold text-secondary hover:text-primary transition-colors">
               <CoffeeCupIcon className="h-8 w-8" />
