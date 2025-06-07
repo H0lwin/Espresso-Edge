@@ -8,6 +8,7 @@ import { ProductCard } from './ProductCard';
 import type { MenuItem } from '@/app/menu/page';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface MenuClientContentProps {
   initialItems: MenuItem[];
@@ -68,26 +69,28 @@ export function MenuClientContent({ initialItems }: MenuClientContentProps) {
       </div>
 
       {filteredItems.length > 0 ? (
-        <motion.div 
-          layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-10"
-        >
-          <AnimatePresence>
-            {filteredItems.map((item, index) => (
-              <motion.div
-                key={item.id}
-                layout
-                variants={cardVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-              >
-                <ProductCard {...item} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+        <ScrollArea className="h-[calc(100vh-26rem)] sm:h-[calc(100vh-22rem)]"> {/* Adjust height as needed, added different height for sm screens */}
+          <motion.div 
+            layout
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-10 p-1" // Added p-1 for scrollbar clearance
+          >
+            <AnimatePresence>
+              {filteredItems.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  layout
+                  variants={cardVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <ProductCard {...item} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        </ScrollArea>
       ) : (
         <motion.p 
           className="text-center text-muted-foreground text-lg py-10"

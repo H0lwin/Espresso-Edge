@@ -23,7 +23,7 @@ export function ProductCard({ id, name, description, price, imageSrc, imageHint,
   const { toast } = useToast();
 
   const handleAddToCart = () => {
-    const itemToAdd = { id, name, price, imageSrc, quantity: 1, category, description, imageHint }; // Ensure all MenuItem fields are passed
+    const itemToAdd = { id, name, price, imageSrc, quantity: 1, category, description, imageHint };
     addItemToCart(itemToAdd);
     toast({
       title: "اضافه شد!",
@@ -52,9 +52,9 @@ export function ProductCard({ id, name, description, price, imageSrc, imageHint,
         />
       </div>
       <div className="p-6 flex flex-col flex-grow text-right">
-        <div className="flex justify-between items-start mb-2">
-          <IconComponent className="h-6 w-6 text-primary flex-shrink-0 order-first" />
-          <h3 className="text-xl font-headline text-secondary order-last ms-2">{name}</h3>
+        <div className="flex flex-row-reverse justify-start items-center mb-2 gap-2"> {/* Changed to flex-row-reverse and justify-start */}
+          <IconComponent className="h-6 w-6 text-primary flex-shrink-0" /> {/* Icon will be on the left of its container (visually) */}
+          <h3 className="text-xl font-headline text-secondary text-right flex-grow">{name}</h3> {/* Title on the right, takes space */}
         </div>
         <p className="text-sm text-muted-foreground mb-4 flex-grow">{description}</p>
         <div className="flex justify-between items-center mt-auto">

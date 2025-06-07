@@ -21,11 +21,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const navItems = [
-  { href: '/', label: 'خانه' }, // Home
-  { href: '/menu', label: 'منو' }, // Menu
-  { href: '/products', label: 'محصولات' }, // Products
-  { href: '/about', label: 'درباره ما' }, // About Us
-  { href: '/contact', label: 'تماس با ما' }, // Contact
+  { href: '/', label: 'خانه' },
+  { href: '/menu', label: 'منو' },
+  { href: '/products', label: 'محصولات' },
+  { href: '/about', label: 'درباره ما' },
+  { href: '/contact', label: 'تماس با ما' },
 ];
 
 export function Navbar() {
@@ -33,8 +33,10 @@ export function Navbar() {
   const [isSticky, setIsSticky] = useState(false);
   const { user, logout } = useAuth();
   const { cartItems, toggleCart: openCartDrawer } = useCart();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => {
       setIsSticky(window.scrollY > 50);
     };
@@ -56,11 +58,10 @@ export function Navbar() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           
-          {/* Left Group (for RTL): Actions - Cart, Auth (Desktop), Mobile Menu Trigger */}
           <div className="flex items-center gap-2 sm:gap-3">
             <Button variant="ghost" size="icon" onClick={openCartDrawer} className="relative">
               <ShoppingCartIcon className="h-6 w-6 text-secondary hover:text-primary transition-colors" />
-              {totalCartItems > 0 && (
+              {mounted && totalCartItems > 0 && (
                 <span className="absolute -top-1 -start-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {totalCartItems}
                 </span>
@@ -68,9 +69,8 @@ export function Navbar() {
               <span className="sr-only">سبد خرید</span>
             </Button>
 
-            {/* Desktop Auth Links */}
             <div className="hidden md:flex items-center gap-3">
-              {user ? (
+              {mounted && user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-full">
@@ -94,15 +94,16 @@ export function Navbar() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              ) : (
+              ) : mounted ? (
                 <>
                   <Button asChild variant="ghost"><Link href="/auth/login">ورود</Link></Button>
                   <Button asChild><Link href="/auth/register">ثبت نام</Link></Button>
                 </>
+              ) : (
+                 <div className="h-10 w-28" /> // Placeholder for auth buttons to prevent layout shift
               )}
             </div>
             
-            {/* Mobile Menu Trigger */}
             <div className="md:hidden">
               <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
@@ -110,7 +111,7 @@ export function Navbar() {
                     <Menu className="h-7 w-7 text-secondary" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[280px] bg-background p-6"> {/* side="right" for RTL menu */}
+                <SheetContent side="right" className="w-[280px] bg-background p-6">
                   <div className="flex flex-col h-full">
                     <div className="flex justify-between items-center mb-8">
                        <Link href="/" className="flex items-center gap-2 text-xl font-headline font-bold text-secondary" onClick={() => setIsSheetOpen(false)}>
@@ -135,19 +136,18 @@ export function Navbar() {
                         </Link>
                       ))}
                     </nav>
-                    {/* Mobile Auth Links */}
                     <div className="mt-auto pt-6 border-t border-border">
-                      {user ? (
+                      {mounted && user ? (
                         <div className="flex flex-col space-y-3">
                           <span className="text-secondary font-medium text-center">سلام، {user.name || 'کاربر گرامی'}!</span>
                           <Button variant="outline" onClick={() => { logout(); setIsSheetOpen(false); }} className="w-full">خروج از حساب</Button>
                         </div>
-                      ) : (
+                      ) : mounted ? (
                         <div className="flex flex-col space-y-3">
                           <Button asChild className="w-full" onClick={() => setIsSheetOpen(false)}><Link href="/auth/login">ورود</Link></Button>
                           <Button asChild variant="outline" className="w-full" onClick={() => setIsSheetOpen(false)}><Link href="/auth/register">ثبت نام</Link></Button>
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 </SheetContent>
@@ -155,7 +155,6 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Center: Desktop Navigation (takes up remaining space and centers its items) */}
           <nav className="hidden md:flex flex-grow justify-center items-center mx-4">
             {navItems.map((item) => (
               <Link
@@ -168,7 +167,6 @@ export function Navbar() {
             ))}
           </nav>
           
-          {/* Right Group (for RTL): Logo */}
           <div> 
             <Link href="/" className="flex items-center gap-2 text-2xl font-headline font-bold text-secondary hover:text-primary transition-colors">
               <CoffeeCupIcon className="h-8 w-8" />

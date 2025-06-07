@@ -14,7 +14,7 @@ interface User {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: User | null | undefined; // Allow undefined for initial loading state
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
@@ -25,20 +25,19 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null | undefined>(undefined); // Initialize as undefined
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
-  // Simulate checking auth status on mount
   useEffect(() => {
     const checkAuth = async () => {
       setIsLoading(true);
-      // In a real app, you'd check a token or session here
-      // For simulation, check local storage
       const storedUser = localStorage.getItem('authUser');
       if (storedUser) {
         setUser(JSON.parse(storedUser));
+      } else {
+        setUser(null); // Set to null if no user found after check
       }
       setIsLoading(false);
     };
@@ -47,7 +46,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     if (email === "user@example.com" && password === "password123") {
       const loggedInUser: User = { id: "1", name: "کاربر نمونه", email, avatarUrl: `https://placehold.co/100x100.png?text=U` };
@@ -55,13 +53,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('authUser', JSON.stringify(loggedInUser));
       setIsLoading(false);
 
-      // Redirect logic:
-      // Check if there's a redirect query param (e.g., from cart prompt)
       const searchParams = new URLSearchParams(window.location.search);
       const redirectPath = searchParams.get('redirect') || '/';
       router.push(redirectPath);
       return true;
     }
+    setUser(null); // Ensure user is null on failed login attempt if it was undefined
     setIsLoading(false);
     return false;
   };
@@ -73,15 +70,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(newUser);
     localStorage.setItem('authUser', JSON.stringify(newUser));
     setIsLoading(false);
-    router.push('/'); // Redirect to home after registration
+    router.push('/');
     return true;
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('authUser');
-    // If on a protected page, redirect to login or home
-    if (pathname.startsWith('/checkout') || pathname.startsWith('/profile')) { // Add other protected routes
+    if (pathname.startsWith('/checkout') || pathname.startsWith('/profile')) {
         router.push('/auth/login');
     } else {
         router.push('/');
@@ -93,7 +89,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
     console.log(`Password reset email sent to ${email} (simulated)`);
     setIsLoading(false);
-    return true; // Simulate success
+    return true;
   };
 
   return (

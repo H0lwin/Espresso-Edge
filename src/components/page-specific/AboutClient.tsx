@@ -26,7 +26,7 @@ export default function AboutClient() {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, x: 30 }, // RTL: x: 30 for appearing from left
+    hidden: { opacity: 0, x: 30 },
     visible: (i: number) => ({
       opacity: 1,
       x: 0,
@@ -61,7 +61,6 @@ export default function AboutClient() {
           </p>
         </motion.div>
 
-        {/* Timeline Section */}
         <motion.section 
           className="mb-16 md:mb-24"
           variants={sectionVariants} 
@@ -71,33 +70,37 @@ export default function AboutClient() {
         >
           <h2 className="text-3xl md:text-4xl font-headline text-center text-secondary mb-12">سفر ما</h2>
           <div className="relative max-w-3xl mx-auto">
-            {/* RTL: Line on the right */}
             <div className="absolute end-1/2 top-0 bottom-0 w-1 bg-primary/30 rounded-full transform translate-x-1/2 hidden md:block"></div>
             {timelineEvents.map((event, index) => {
               const Icon = event.icon;
+              const isTextLeft = index % 2 === 0;
               return (
                 <motion.div
                   key={event.year}
-                  className="mb-10 md:mb-12 flex md:items-center w-full"
+                  className="mb-10 md:mb-12 flex md:items-stretch w-full" // Use items-stretch for equal height
                   custom={index}
                   variants={itemVariants}
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true }}
                 >
-                  {/* RTL: Adjust order and text alignment */}
-                  <div className={`w-full md:w-1/2 ${index % 2 === 0 ? 'md:ps-8 md:text-left' : 'md:pe-8 md:text-right md:order-2'}`}>
+                  {/* Text Block */}
+                  <div 
+                    className={`w-full md:w-1/2 flex flex-col justify-center ${isTextLeft ? 'md:ps-8 md:text-left md:order-1' : 'md:pe-8 md:text-right md:order-2'}`}
+                  >
                     <div className="bg-card p-6 rounded-lg shadow-lg border border-border">
-                      <div className="flex items-center mb-2">
-                        {index % 2 !== 0 && <Icon className="h-6 w-6 text-primary me-3 md:hidden" />} {/* RTL: me-3 */}
+                      <div className={`flex items-center mb-2 ${isTextLeft ? 'md:justify-start' : 'md:justify-end'}`}>
+                        {!isTextLeft && <Icon className="h-6 w-6 text-primary me-3 md:hidden" />}
                         <h3 className="text-xl font-headline text-primary">{event.year} - {event.title}</h3>
-                        {index % 2 === 0 && <Icon className="h-6 w-6 text-primary ms-3 md:hidden" />} {/* RTL: ms-3 */}
+                        {isTextLeft && <Icon className="h-6 w-6 text-primary ms-3 md:hidden" />}
                       </div>
                       <p className="text-sm text-muted-foreground">{event.description}</p>
                     </div>
                   </div>
-                  <div className="hidden md:flex w-1/2 items-center justify-center md:order-1">
-                    {/* RTL: Line on the right of icons */}
+                  {/* Icon Centering Gizmo */}
+                  <div 
+                    className={`hidden md:flex w-1/2 items-center justify-center relative ${isTextLeft ? 'md:order-2' : 'md:order-1'}`}
+                  >
                     <div className="absolute end-1/2 transform translate-x-1/2 z-10 bg-background p-2 rounded-full border-2 border-primary">
                       <Icon className="h-6 w-6 text-primary" />
                     </div>
@@ -108,7 +111,6 @@ export default function AboutClient() {
           </div>
         </motion.section>
 
-        {/* Team Section */}
         <motion.section
           variants={sectionVariants} 
           initial="hidden" 

@@ -10,7 +10,7 @@ import { ShoppingCart } from '@/components/cart/ShoppingCart';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
 export default function SiteLayoutClient({ children }: { children: ReactNode }) {
-  const { isLoading: isAuthLoading } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
 
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
@@ -20,14 +20,14 @@ export default function SiteLayoutClient({ children }: { children: ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=PT+Sans:wght@400;700&family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased flex flex-col min-h-screen bg-background text-foreground">
-        {isAuthLoading && <LoadingSpinner />}
+        {(isAuthLoading || user === undefined) && <LoadingSpinner />}
         <Navbar />
-        <main className="flex-grow pt-20"> {/* Added pt-20 to prevent content overlap with fixed navbar */}
+        <main className="flex-grow pt-20">
           {children}
         </main>
         <Footer />
         <Toaster />
-        <ShoppingCart /> {/* Add the cart component here so it can be triggered globally */}
+        <ShoppingCart />
       </body>
     </html>
   );
