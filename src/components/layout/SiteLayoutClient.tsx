@@ -16,6 +16,7 @@ export default function SiteLayoutClient({ children }: { children: ReactNode }) 
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
       <head>
+        {/* Ensure this is the only favicon link and points to public/favicon.png */}
         <link rel="icon" href="/favicon.png" />
         
         {/* Preconnect to Google Fonts */}
