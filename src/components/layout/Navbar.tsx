@@ -111,15 +111,14 @@ export function Navbar() {
                     <Menu className="h-7 w-7 text-secondary" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[280px] bg-background p-6 flex flex-col"> {/* Mobile menu from right for RTL */}
-                  <SheetHeader className="flex flex-row justify-between items-center mb-8 text-right">
+                <SheetContent side="right" className="w-[280px] bg-background p-6 flex flex-col">
+                  <SheetHeader className="flex flex-row justify-end items-center mb-8 text-right pr-10"> {/* Adjusted classes here */}
                      <SheetTitle asChild>
                         <Link href="/" className="flex items-center gap-2 text-xl font-headline font-bold text-secondary" onClick={() => setIsSheetOpen(false)}>
                           <CoffeeCupIcon className="h-7 w-7" />
                           اسپرسو اج
                         </Link>
                       </SheetTitle>
-                      {/* Default SheetClose is part of SheetContent, or place custom one here */}
                   </SheetHeader>
                   
                   <nav className="flex flex-col space-y-6 text-right mb-auto">
