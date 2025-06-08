@@ -27,7 +27,7 @@ Espresso Edge is brewing with features designed to engage and satisfy:
 Espresso Edge is built using a modern and robust technology stack:
 
 *   **Framework:** [Next.js](https://nextjs.org/) (App Router)
-*   **Language:** [TypeScript](https://www.typescriptlang.org/)
+
 *   **UI Library:** [React](https://reactjs.org/)
 *   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 *   **UI Components:** [ShadCN UI](https://ui.shadcn.com/)
