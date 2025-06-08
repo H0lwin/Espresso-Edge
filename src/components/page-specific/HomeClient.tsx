@@ -38,7 +38,7 @@ export default function HomeClient() {
           src="https://placehold.co/1920x1080.png"
           alt="فضای داخلی دنج کافی شاپ" // Comfortable coffee shop interior
           fill
-          objectFit="cover"
+          style={{objectFit:"cover"}}
           priority
           sizes="100vw"
           className="z-0"
@@ -58,7 +58,7 @@ export default function HomeClient() {
             دوز روزانه کمال شما، با اشتیاق ساخته شده.
           </motion.p>
           <motion.div variants={itemVariants}>
-            <Button asChild size="lg" className="bg-primary hover:bg-opacity-80 text-primary-foreground text-lg px-8 py-6 rounded-md shadow-xl transition-transform duration-300 hover:scale-105">
+            <Button asChild size="lg" className="bg-secondary hover:bg-secondary/80 text-secondary-foreground text-lg px-8 py-6 rounded-md shadow-xl transition-transform duration-300 hover:scale-105">
               <Link href="/menu">
                 مشاهده منوی ما <ArrowLeft className="ms-2 h-5 w-5" /> {/* RTL: ArrowLeft, ms-2 */}
               </Link>
@@ -71,7 +71,7 @@ export default function HomeClient() {
       <section className="py-16 md:py-24 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.h2 
-            className="text-4xl md:text-5xl font-headline text-center text-secondary mb-12 md:mb-16"
+            className="text-4xl md:text-5xl font-headline text-center text-primary mb-12 md:mb-16"
             initial={{ opacity: 0, y:20 }}
             whileInView={{ opacity: 1, y:0 }}
             viewport={{ once: true }}
@@ -116,7 +116,7 @@ export default function HomeClient() {
             <p className="text-lg md:text-xl font-body max-w-3xl mx-auto mb-8">
               در اسپرسو اج، ما چیزی بیشتر از یک کافی شاپ هستیم. ما یک مرکز اجتماعی هستیم که در آن دانه‌های با کیفیت، مهارت تخصصی و فضایی گرم گرد هم می‌آیند.
             </p>
-            <Button asChild variant="outline" size="lg" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-secondary rounded-md shadow-lg transition-transform duration-300 hover:scale-105">
+            <Button asChild variant="outline" size="lg" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground rounded-md shadow-lg transition-transform duration-300 hover:scale-105">
               <Link href="/about">
                 داستان ما را بخوانید
               </Link>
