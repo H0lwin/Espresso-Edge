@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Coffee, CakeSlice, Sandwich, PlusCircle, GlassWater, Milkshake } from 'lucide-react';
+import { Coffee, CakeSlice, Sandwich, PlusCircle, GlassWater, Milk } from 'lucide-react'; // Changed Milkshake to Milk
 import { useCart } from '@/context/CartContext';
 import { useToast } from "@/hooks/use-toast";
 import type { MenuItem, MenuItemCategory } from '@/app/menu/page';
@@ -14,7 +14,7 @@ interface ProductCardProps extends MenuItem {}
 const categoryIcons: Record<MenuItemCategory, React.ElementType> = {
   'نوشیدنی‌های گرم': Coffee,
   'نوشیدنی‌های سرد': GlassWater,
-  'شیک و اسموتی': Milkshake,
+  'شیک و اسموتی': Milk, // Changed Milkshake to Milk
   'کیک و دسر': CakeSlice,
   'اسنک و میان‌وعده': Sandwich,
 };
