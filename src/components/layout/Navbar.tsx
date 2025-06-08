@@ -112,9 +112,9 @@ export function Navbar() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[280px] bg-background p-6 flex flex-col">
-                  <SheetHeader className="flex flex-row justify-end items-center mb-8 text-right pr-10"> {/* Adjusted classes here */}
+                  <SheetHeader className="flex flex-row justify-end items-center mb-8 text-right pr-10">
                      <SheetTitle asChild>
-                        <Link href="/" className="flex items-center gap-2 text-xl font-headline font-bold text-secondary" onClick={() => setIsSheetOpen(false)}>
+                        <Link href="/" className="flex items-center gap-2 text-xl font-headline font-bold text-secondary mt-4" onClick={() => setIsSheetOpen(false)}>
                           <CoffeeCupIcon className="h-7 w-7" />
                           اسپرسو اج
                         </Link>
