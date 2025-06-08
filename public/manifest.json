@@ -2,11 +2,6 @@
   "name": "Espresso Edge",
   "short_name": "EspressoEdge",
   "description": "بهترین تجربه قهوه را در اسپرسو اج کشف کنید. نوشیدنی عالی شما منتظر است.",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#F5E7D2",
-  "theme_color": "#6F4E37",
-  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
@@ -24,5 +19,12 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "theme_color": "#6F4E37",
+  "background_color": "#F5E7D2",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "prefer_related_applications": false
 }
