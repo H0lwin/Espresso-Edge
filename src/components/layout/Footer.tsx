@@ -110,7 +110,7 @@ export function Footer() {
             <p className="text-sm">&copy; {new Date().getFullYear()} اسپرسو اج. تمامی حقوق محفوظ است.</p> 
             <p className="text-sm mt-2">
               <a href="https://github.com/heroinsh/" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                Developed by shayan
+                Developed by Shayan
               </a>
             </p>
           </motion.div>
