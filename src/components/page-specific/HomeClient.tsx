@@ -4,16 +4,18 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ProductCard } from '@/components/sections/menu/ProductCard'; // Assuming ProductCard can be reused
+import { ProductCard } from '@/components/sections/menu/ProductCard';
 import { AnimatedPage } from '@/components/shared/AnimatedPage';
-import { ArrowLeft } from 'lucide-react'; // For RTL "next" icon
+import { ArrowLeft } from 'lucide-react'; 
 import { motion } from 'framer-motion';
+import type { MenuItemCategory } from '@/app/menu/page';
+
 
 export default function HomeClient() {
-  const featuredProducts = [
-    { id: 'hc1', name: 'اسپرسو ویژه', description: 'غنی و پررنگ، یک کلاسیک واقعی برای شروع روز شما.', price: '۱۲۰،۰۰۰ تومان', imageSrc: 'https://placehold.co/400x300.png', imageHint: 'espresso coffee', category: 'Coffee' as const },
-    { id: 'hc2', name: 'لاته هنری', description: 'اسپرسوی نرم با شیر کاملاً بخارپز شده و کمی هنر.', price: '۱۸۰،۰۰۰ تومان', imageSrc: 'https://placehold.co/400x300.png', imageHint: 'latte art', category: 'Coffee' as const },
-    { id: 'hc3', name: 'کروسان تازه پخته شده', description: 'پفکی، کره‌ای و روزانه تازه پخته می‌شود. کاملاً با هر قهوه‌ای ست می‌شود.', price: '۹۰،۰۰۰ تومان', imageSrc: 'https://placehold.co/400x300.png', imageHint: 'croissant pastry', category: 'Pastries' as const },
+  const featuredProducts: Array<{ id: string; name: string; description: string; price: string; imageSrc: string; imageHint: string; category: MenuItemCategory;}> = [
+    { id: 'hc1', name: 'اسپرسو ویژه', description: 'غنی و پررنگ، یک کلاسیک واقعی برای شروع روز شما.', price: '۱۲۰،۰۰۰ تومان', imageSrc: 'https://placehold.co/400x300.png', imageHint: 'espresso coffee', category: 'نوشیدنی‌های گرم' },
+    { id: 'hc2', name: 'لاته هنری', description: 'اسپرسوی نرم با شیر کاملاً بخارپز شده و کمی هنر.', price: '۱۸۰،۰۰۰ تومان', imageSrc: 'https://placehold.co/400x300.png', imageHint: 'latte art', category: 'نوشیدنی‌های گرم' },
+    { id: 'hc3', name: 'کروسان تازه پخته شده', description: 'پفکی، کره‌ای و روزانه تازه پخته می‌شود. کاملاً با هر قهوه‌ای ست می‌شود.', price: '۹۰،۰۰۰ تومان', imageSrc: 'https://placehold.co/400x300.png', imageHint: 'croissant pastry', category: 'کیک و دسر' },
   ];
 
   const heroVariants = {
@@ -36,7 +38,7 @@ export default function HomeClient() {
       <section className="relative h-[calc(100vh-5rem)] min-h-[600px] flex items-center justify-center text-center text-white overflow-hidden">
         <Image
           src="https://placehold.co/1920x1080.png"
-          alt="فضای داخلی دنج کافی شاپ" // Comfortable coffee shop interior
+          alt="فضای داخلی دنج کافی شاپ"
           fill
           style={{objectFit:"cover"}}
           priority
@@ -60,7 +62,7 @@ export default function HomeClient() {
           <motion.div variants={itemVariants}>
             <Button asChild size="lg" className="bg-secondary hover:bg-secondary/80 text-secondary-foreground text-lg px-8 py-6 rounded-md shadow-xl transition-transform duration-300 hover:scale-105">
               <Link href="/menu">
-                مشاهده منوی ما <ArrowLeft className="ms-2 h-5 w-5" /> {/* RTL: ArrowLeft, ms-2 */}
+                مشاهده منوی ما <ArrowLeft className="ms-2 h-5 w-5" />
               </Link>
             </Button>
           </motion.div>
@@ -89,7 +91,7 @@ export default function HomeClient() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <ProductCard
-                  id={product.id} // Pass id for cart functionality
+                  id={product.id}
                   name={product.name}
                   description={product.description}
                   price={product.price}

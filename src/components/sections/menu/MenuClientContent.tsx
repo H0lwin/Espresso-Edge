@@ -5,25 +5,26 @@ import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from './ProductCard';
-import type { MenuItem } from '@/app/menu/page';
+import type { MenuItem, MenuItemCategory } from '@/app/menu/page';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search } from 'lucide-react';
-// Removed ScrollArea import
 
 interface MenuClientContentProps {
   initialItems: MenuItem[];
 }
 
-const categoriesData: Array<{ value: 'All' | MenuItem['category'], label: string }> = [
+const categoriesData: Array<{ value: 'All' | MenuItemCategory, label: string }> = [
   { value: 'All', label: 'همه' },
-  { value: 'Coffee', label: 'قهوه' },
-  { value: 'Pastries', label: 'شیرینی‌ها' },
-  { value: 'Snacks', label: 'میان‌وعده‌ها' },
+  { value: 'نوشیدنی‌های گرم', label: 'نوشیدنی‌های گرم' },
+  { value: 'نوشیدنی‌های سرد', label: 'نوشیدنی‌های سرد' },
+  { value: 'شیک و اسموتی', label: 'شیک و اسموتی' },
+  { value: 'کیک و دسر', label: 'کیک و دسر' },
+  { value: 'اسنک و میان‌وعده', label: 'اسنک و میان‌وعده' },
 ];
 
 export function MenuClientContent({ initialItems }: MenuClientContentProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeCategory, setActiveCategory] = useState<'All' | MenuItem['category']>('All');
+  const [activeCategory, setActiveCategory] = useState<'All' | MenuItemCategory>('All');
 
   const filteredItems = useMemo(() => {
     return initialItems.filter(item => {
@@ -71,7 +72,7 @@ export function MenuClientContent({ initialItems }: MenuClientContentProps) {
       {filteredItems.length > 0 ? (
           <motion.div 
             layout
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-10" // Removed height and p-1
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-10"
           >
             <AnimatePresence>
               {filteredItems.map((item, index) => (

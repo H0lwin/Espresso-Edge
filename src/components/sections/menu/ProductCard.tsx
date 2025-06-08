@@ -4,21 +4,23 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Coffee, CakeSlice, Sandwich, PlusCircle } from 'lucide-react';
+import { Coffee, CakeSlice, Sandwich, PlusCircle, GlassWater, Milkshake } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useToast } from "@/hooks/use-toast";
-import type { MenuItem } from '@/app/menu/page';
+import type { MenuItem, MenuItemCategory } from '@/app/menu/page';
 
 interface ProductCardProps extends MenuItem {}
 
-const categoryIcons = {
-  Coffee: Coffee,
-  Pastries: CakeSlice,
-  Snacks: Sandwich,
+const categoryIcons: Record<MenuItemCategory, React.ElementType> = {
+  'نوشیدنی‌های گرم': Coffee,
+  'نوشیدنی‌های سرد': GlassWater,
+  'شیک و اسموتی': Milkshake,
+  'کیک و دسر': CakeSlice,
+  'اسنک و میان‌وعده': Sandwich,
 };
 
 export function ProductCard({ id, name, description, price, imageSrc, imageHint, category }: ProductCardProps) {
-  const IconComponent = categoryIcons[category] || Coffee;
+  const IconComponent = categoryIcons[category] || Coffee; // Default to Coffee if somehow category is not found
   const { addItemToCart, openCart } = useCart();
   const { toast } = useToast();
 
@@ -57,7 +59,7 @@ export function ProductCard({ id, name, description, price, imageSrc, imageHint,
           <h3 className="text-xl font-headline text-secondary text-right flex-grow">{name}</h3>
         </div>
         <p className="text-sm text-muted-foreground mb-4 flex-grow">{description}</p>
-        <div className="flex justify-between items-baseline mt-auto"> {/* Changed items-center to items-baseline */}
+        <div className="flex justify-between items-baseline mt-auto">
           <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={handleAddToCart}>
             <PlusCircle className="ms-2 h-4 w-4" />
             افزودن به سبد
@@ -68,4 +70,3 @@ export function ProductCard({ id, name, description, price, imageSrc, imageHint,
     </motion.div>
   );
 }
-
