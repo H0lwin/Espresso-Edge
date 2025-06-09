@@ -33,11 +33,12 @@ interface AuthContextType {
   register: (name: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   sendPasswordResetEmail: (email: string) => Promise<boolean>;
+  // refreshToken: () => Promise<void>; // For future implementation
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ANONYMOUS_CART_ID_STORAGE_KEY = 'espressoEdgeAnonymousCartId'; // For cleanup on logout
+const ANONYMOUS_CART_ID_STORAGE_KEY = 'espressoEdgeAnonymousCartId';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null | undefined>(undefined); // Initialize as undefined
@@ -95,12 +96,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await apiClient<AuthResponse>('/auth/login/', {
         method: 'POST',
-        body: { email, password },
+        body: { email, password }, // Or 'username' if your backend uses that
+        skipAuth: true, // Don't send auth header for login itself
       });
 
-      setUser(response.user);
-      setToken(response.token);
-      localStorage.setItem('authToken', response.token);
+      setAccessToken(response.access);
+      localStorage.setItem('accessToken', response.access);
+      if (response.refresh) {
+        localStorage.setItem('refreshToken', response.refresh);
+      }
+
+      await fetchUserDetails(response.access); // Fetch user details after getting token
 
       const redirectPath = searchParams.get('redirect') || '/';
       router.push(redirectPath);
@@ -132,18 +138,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const response = await apiClient<AuthResponse | { detail: string }>('/auth/register/', {
         method: 'POST',
-        body: { name, email, password, username: email },
+        body: { name, email, password, username: email }, // 'username' might be required
+        skipAuth: true,
       });
 
-      if ('token' in response && 'user' in response) {
-        setUser(response.user);
-        setToken(response.token);
-        localStorage.setItem('authToken', response.token);
-        // After successful registration and login, cart migration will be handled by CartContext's useEffect
-        router.push('/');
-      } else {
-        router.push('/auth/login?registrationSuccess=true');
-      }
+      // Option 1: Redirect to login with a success message
+      router.push('/auth/login?registrationSuccess=true');
+      // Option 2: Automatically log the user in (less secure if tokens are just passed around)
+      // If your backend registration returns tokens, you can call login logic here.
+
       router.refresh();
       return true;
     } catch (error) {
@@ -156,23 +159,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     setIsLoading(true);
-    const currentToken = localStorage.getItem('authToken');
-    if (currentToken) {
-        try {
-          await apiClient('/auth/logout/', {
-            method: 'POST',
-            headers: { Authorization: `Token ${currentToken}` }
-          });
-        } catch (error) {
-          console.error("Logout API call failed:", error);
-        }
-    }
+    // Optional: Call a backend endpoint to blacklist the refresh token if your setup supports it
+    // const currentRefreshToken = localStorage.getItem('refreshToken');
+    // if (currentRefreshToken) {
+    // try {
+    // await apiClient('/auth/jwt/logout/', { // Or similar endpoint
+    // method: 'POST',
+    // body: { refresh: currentRefreshToken },
+    // });
+    // } catch (error) {
+    // console.error("JWT Logout API call failed:", error);
+    // }
+    // }
 
     setUser(null);
-    setToken(null);
-    localStorage.removeItem('authToken');
-    localStorage.removeItem(ANONYMOUS_CART_ID_STORAGE_KEY); // Clear anonymous cart ID on logout
-    // CartContext will see user is null and re-initialize for guest (or do nothing if no cart actions are taken)
+    setAccessToken(null);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem(ANONYMOUS_CART_ID_STORAGE_KEY);
 
 >>>>>>> 865b30b (A backend developer has requested a change in the frontend of the site.)
     if (pathname.startsWith('/checkout') || pathname.startsWith('/profile')) {
@@ -199,6 +203,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await apiClient('/auth/password/reset/', {
         method: 'POST',
         body: { email },
+        skipAuth: true,
       });
       return true;
     } catch (error) {
@@ -209,6 +214,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 >>>>>>> 865b30b (A backend developer has requested a change in the frontend of the site.)
   };
+
+  // Placeholder for token refresh logic (advanced)
+  // const refreshToken = async () => { ... }
 
   return (
     <AuthContext.Provider value={{ user, isLoading, login, register, logout, sendPasswordResetEmail }}>
