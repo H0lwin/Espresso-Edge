@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from "@/hooks/use-toast";
 import { motion } from 'framer-motion';
+import apiClient from '@/lib/apiClient';
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "نام باید حداقل ۲ حرف باشد." }),
@@ -19,6 +20,10 @@ const contactFormSchema = z.object({
 
 type ContactFormData = z.infer<typeof contactFormSchema>;
 
+interface ContactFormResponse {
+  message: string;
+}
+
 export function ContactForm() {
   const { toast } = useToast();
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ContactFormData>({
@@ -26,13 +31,24 @@ export function ContactForm() {
   });
 
   const onSubmit: SubmitHandler<ContactFormData> = async (data) => {
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    console.log(data);
-    toast({
-      title: "پیام ارسال شد!",
-      description: "از تماس شما متشکریم. به زودی پاسخ خواهیم داد.",
-    });
-    reset();
+    try {
+      const response = await apiClient<ContactFormResponse>('/api/contact-form/submit/', {
+        method: 'POST',
+        body: data,
+      });
+      toast({
+        title: "پیام ارسال شد!",
+        description: response.message || "از تماس شما متشکریم. به زودی پاسخ خواهیم داد.",
+      });
+      reset();
+    } catch (error: any) {
+      console.error("Contact form submission error:", error);
+      toast({
+        title: "خطا در ارسال پیام",
+        description: error.message || "مشکلی در ارسال پیام شما پیش آمد. لطفاً دوباره تلاش کنید.",
+        variant: "destructive",
+      });
+    }
   };
 
   const inputFieldVariants = {

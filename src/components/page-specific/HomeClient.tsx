@@ -8,46 +8,92 @@ import { ProductCard } from '@/components/sections/menu/ProductCard';
 import { AnimatedPage } from '@/components/shared/AnimatedPage';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
-import type { MenuItem } from '@/app/menu/page'; // MenuItem price is now number
+import type { MenuItem } from '@/app/menu/page';
 import { useEffect, useState } from 'react';
 import apiClient from '@/lib/apiClient';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
 
+interface HeroContentAPI {
+  title: string;
+  subtitle: string;
+  ctaText: string;
+  ctaLink: string;
+  imageSrc: string;
+  imageHint: string;
+}
+
+interface ExperienceContentAPI {
+  title: string;
+  text: string;
+  ctaText: string;
+  ctaLink: string;
+}
+
+interface HomePageContentAPI {
+  hero: HeroContentAPI;
+  featuredProducts: MenuItem[];
+  experienceSection: ExperienceContentAPI;
+}
+
+const defaultHeroContent: HeroContentAPI = {
+  title: 'به اسپرسو اج خوش آمدید',
+  subtitle: 'دوز روزانه کمال شما، با اشتیاق ساخته شده.',
+  ctaText: 'مشاهده منوی ما',
+  ctaLink: '/menu',
+  imageSrc: 'https://placehold.co/1920x1080.png',
+  imageHint: 'coffee shop interior',
+};
+
+const defaultExperienceContent: ExperienceContentAPI = {
+  title: 'تفاوت را تجربه کنید',
+  text: 'در اسپرسو اج، ما چیزی بیشتر از یک کافی شاپ هستیم. ما یک مرکز اجتماعی هستیم که در آن دانه‌های با کیفیت، مهارت تخصصی و فضایی گرم گرد هم می‌آیند.',
+  ctaText: 'داستان ما را بخوانید',
+  ctaLink: '/about',
+};
+
 
 export default function HomeClient() {
-  const [featuredProducts, setFeaturedProducts] = useState<MenuItem[]>([]);
+  const [pageContent, setPageContent] = useState<HomePageContentAPI | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchFeaturedProducts = async () => {
+    const fetchHomePageContent = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        const products = await apiClient<MenuItem[]>('/api/menu-items/featured'); // Placeholder for your featured items endpoint
-        setFeaturedProducts(products ? products.slice(0, 3) : []);
+        const data = await apiClient<HomePageContentAPI>('/api/content/homepage/');
+        setPageContent(data);
       } catch (err: any) {
-        console.error("Failed to fetch featured products:", err); // This log is kept for debugging
+        console.error("Failed to fetch homepage content:", err);
         if (err.message && err.message.includes("404")) {
-          // If 404, it means no featured products endpoint or no items found.
-          // We don't set a generic error message; the UI will show "No featured products..."
-          setError(null); 
+          setError("محتوای صفحه اصلی یافت نشد. از مقادیر پیش‌فرض استفاده می‌شود.");
+          // Use default content if API returns 404, but don't toast
+          setPageContent({ 
+            hero: defaultHeroContent, 
+            featuredProducts: [], 
+            experienceSection: defaultExperienceContent 
+          });
         } else {
-          setError("خطا در بارگذاری محصولات ویژه.");
+          setError("خطا در بارگذاری محتوای صفحه اصلی.");
           toast({
             title: "خطا",
-            description: "امکان بارگذاری محصولات ویژه وجود نداشت. لطفاً بعداً دوباره تلاش کنید.",
+            description: "امکان بارگذاری محتوای صفحه اصلی وجود نداشت. لطفاً بعداً دوباره تلاش کنید.",
             variant: "destructive",
           });
+          setPageContent({ 
+            hero: defaultHeroContent, 
+            featuredProducts: [], 
+            experienceSection: defaultExperienceContent 
+          });
         }
-        setFeaturedProducts([]); // Ensure products array is empty on any error
       } finally {
         setIsLoading(false);
       }
     };
-    fetchFeaturedProducts();
+    fetchHomePageContent();
   }, [toast]);
 
 
@@ -64,20 +110,36 @@ export default function HomeClient() {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
+  
+  const heroData = pageContent?.hero || defaultHeroContent;
+  const featuredProductsData = pageContent?.featuredProducts || [];
+  const experienceData = pageContent?.experienceSection || defaultExperienceContent;
+
+
+  if (isLoading) {
+    return (
+      <AnimatedPage>
+        <div className="flex items-center justify-center min-h-[calc(100vh-5rem)]">
+          <LoadingSpinner />
+        </div>
+      </AnimatedPage>
+    );
+  }
+
 
   return (
     <AnimatedPage>
       {/* Hero Section */}
       <section className="relative h-[calc(100vh-5rem)] min-h-[600px] flex items-center justify-center text-center text-white overflow-hidden">
         <Image
-          src="https://placehold.co/1920x1080.png"
-          alt="فضای داخلی دنج کافی شاپ"
+          src={heroData.imageSrc}
+          alt={heroData.imageHint || "فضای داخلی دنج کافی شاپ"}
           fill
           style={{objectFit:"cover"}}
           priority
           sizes="100vw"
           className="z-0"
-          data-ai-hint="coffee shop interior"
+          data-ai-hint={heroData.imageHint}
         />
         <div className="absolute inset-0 bg-black/50 z-10"></div>
         <motion.div
@@ -87,15 +149,15 @@ export default function HomeClient() {
           animate="visible"
         >
           <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-headline mb-6 drop-shadow-lg">
-            به اسپرسو اج خوش آمدید
+            {heroData.title}
           </motion.h1>
           <motion.p variants={itemVariants} className="text-xl md:text-2xl font-body mb-10 max-w-2xl mx-auto drop-shadow-md">
-            دوز روزانه کمال شما، با اشتیاق ساخته شده.
+            {heroData.subtitle}
           </motion.p>
           <motion.div variants={itemVariants}>
             <Button asChild size="lg" className="bg-secondary hover:bg-secondary/80 text-secondary-foreground text-lg px-8 py-6 rounded-md shadow-xl transition-transform duration-300 hover:scale-105">
-              <Link href="/menu">
-                مشاهده منوی ما <ArrowLeft className="ms-2 h-5 w-5" />
+              <Link href={heroData.ctaLink}>
+                {heroData.ctaText} <ArrowLeft className="ms-2 h-5 w-5" />
               </Link>
             </Button>
           </motion.div>
@@ -114,14 +176,15 @@ export default function HomeClient() {
           >
             نوشیدنی‌های ویژه ما
           </motion.h2>
-          {isLoading && <div className="flex justify-center"><LoadingSpinner /></div>}
-          {error && <p className="text-center text-destructive">{error}</p>}
-          {!isLoading && !error && featuredProducts.length === 0 && (
+          {/* Error message for general loading failure, specific 404 handled by showing no products */}
+          {error && !error.includes("یافت نشد") && <p className="text-center text-destructive mb-4">{error}</p>}
+          
+          {featuredProductsData.length === 0 && !isLoading && (
             <p className="text-center text-muted-foreground">محصول ویژه‌ای برای نمایش وجود ندارد.</p>
           )}
-          {!isLoading && !error && featuredProducts.length > 0 && (
+          {featuredProductsData.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-              {featuredProducts.map((product, index) => (
+              {featuredProductsData.map((product, index) => (
                 <motion.div
                   key={product.id}
                   initial={{ opacity: 0, y: 50 }}
@@ -133,7 +196,7 @@ export default function HomeClient() {
                     id={product.id}
                     name={product.name}
                     description={product.description}
-                    price={product.price} // price is number
+                    price={product.price}
                     imageSrc={product.imageSrc}
                     imageHint={product.imageHint}
                     category={product.category}
@@ -154,13 +217,13 @@ export default function HomeClient() {
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
           >
-            <h3 className="text-3xl md:text-4xl font-headline mb-6">تفاوت را تجربه کنید</h3>
+            <h3 className="text-3xl md:text-4xl font-headline mb-6">{experienceData.title}</h3>
             <p className="text-lg md:text-xl font-body max-w-3xl mx-auto mb-8">
-              در اسپرسو اج، ما چیزی بیشتر از یک کافی شاپ هستیم. ما یک مرکز اجتماعی هستیم که در آن دانه‌های با کیفیت، مهارت تخصصی و فضایی گرم گرد هم می‌آیند.
+              {experienceData.text}
             </p>
             <Button asChild variant="outline" size="lg" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground rounded-md shadow-lg transition-transform duration-300 hover:scale-105">
-              <Link href="/about">
-                داستان ما را بخوانید
+              <Link href={experienceData.ctaLink}>
+                {experienceData.ctaText}
               </Link>
             </Button>
           </motion.div>

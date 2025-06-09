@@ -11,6 +11,7 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useToast } from "@/hooks/use-toast";
+import apiClient from '@/lib/apiClient';
 
 
 const NewsletterSchema = z.object({
@@ -18,20 +19,36 @@ const NewsletterSchema = z.object({
 });
 type NewsletterFormData = z.infer<typeof NewsletterSchema>;
 
+interface NewsletterResponse {
+  message: string;
+}
+
 
 export function Footer() {
   const { toast } = useToast();
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<NewsletterFormData>({
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<NewsletterFormData>({
     resolver: zodResolver(NewsletterSchema),
   });
 
   const onSubmit: SubmitHandler<NewsletterFormData> = async (data) => {
-    console.log('عضویت در خبرنامه:', data.email);
-    toast({
-      title: "عضو شدید!",
-      description: "از اینکه به خبرنامه ما پیوستید متشکریم.",
-    });
-    reset();
+    try {
+      const response = await apiClient<NewsletterResponse>('/api/newsletter/subscribe/', {
+        method: 'POST',
+        body: data,
+      });
+      toast({
+        title: "عضو شدید!",
+        description: response.message || "از اینکه به خبرنامه ما پیوستید متشکریم.",
+      });
+      reset();
+    } catch (error: any) {
+      console.error("Newsletter subscription error:", error);
+      toast({
+        title: "خطا در عضویت",
+        description: error.message || "مشکلی در عضویت شما در خبرنامه پیش آمد. لطفاً دوباره تلاش کنید.",
+        variant: "destructive",
+      });
+    }
   };
 
   const socialLinks = [
@@ -61,10 +78,11 @@ export function Footer() {
                 className="bg-secondary-foreground text-secondary placeholder:text-muted-foreground border-border focus:ring-primary text-right flex-grow" 
                 {...register("email")}
                 aria-invalid={errors.email ? "true" : "false"}
+                disabled={isSubmitting}
               />
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                <Button type="submit" variant="default" size="icon" aria-label="عضویت در خبرنامه" className="bg-primary hover:bg-primary/80">
-                  <Send className="h-5 w-5" />
+                <Button type="submit" variant="default" size="icon" aria-label="عضویت در خبرنامه" className="bg-primary hover:bg-primary/80" disabled={isSubmitting}>
+                  {isSubmitting ? <span className="animate-spin h-5 w-5 border-2 border-t-transparent rounded-full"></span> : <Send className="h-5 w-5" />}
                 </Button>
               </motion.div>
             </form>
