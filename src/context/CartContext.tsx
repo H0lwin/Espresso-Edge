@@ -42,7 +42,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [anonymousCartId, setAnonymousCartId] = useState<string | null>(null);
-  const { user, token, isLoading: isAuthLoading } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth(); // Removed 'token' as it's handled by apiClient
   const { toast } = useToast();
 
   const checkOrCreateAnonymousCart = useCallback(async (): Promise<string | null> => {
@@ -60,7 +60,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (response && response.uuid) {
         localStorage.setItem(ANONYMOUS_CART_ID_STORAGE_KEY, response.uuid);
         setAnonymousCartId(response.uuid);
-        setCartItems(response.items || []);
+        setCartItems(response.items || []); // Initialize cart with items if backend returns them on create
         setIsLoading(false);
         return response.uuid;
       }
@@ -83,8 +83,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (error.message && (error.message.includes("404") || error.message.toLowerCase().includes("not found"))) {
         localStorage.removeItem(ANONYMOUS_CART_ID_STORAGE_KEY);
         setAnonymousCartId(null);
-        // Don't automatically create a new one here, let actions trigger it or first load.
-        setCartItems([]); // Clear items if cart was not found
+        setCartItems([]); 
       } else {
         toast({ title: "خطا", description: error.message || "خطا در دریافت سبد خرید مهمان.", variant: "destructive" });
       }
@@ -94,10 +93,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   }, [toast]);
 
   const syncUserCartWithBackend = useCallback(async () => {
-    if (!user || !token) return;
+    if (!user) return; // apiClient handles token internally
     setIsLoading(true);
     try {
-      const backendCart = await apiClient<CartItem[]>('/api/cart/'); // Assumes this endpoint returns CartItem[]
+      // Ensure this endpoint matches your backend for fetching authenticated user's cart
+      const backendCart = await apiClient<CartItem[]>('/api/cart/'); 
       setCartItems(backendCart || []);
     } catch (error: any) {
       console.error("Failed to sync user cart with backend:", error);
@@ -105,28 +105,27 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [user, token, toast]);
+  }, [user, toast]);
 
 
   const handleUserLogin = useCallback(async () => {
-    if (!user || !token) return;
+    if (!user) return; // Only proceed if user is defined
     setIsLoading(true);
     const guestCartId = localStorage.getItem(ANONYMOUS_CART_ID_STORAGE_KEY);
 
     if (guestCartId) {
       try {
-        // Check if anonymous cart has items before attempting migration
         const guestCart = await apiClient<AnonymousCartAPIResponse>(`/api/anonymous-cart/${guestCartId}/`, { skipAuth: true });
         if (guestCart && guestCart.items && guestCart.items.length > 0) {
             await apiClient('/api/cart/migrate-anonymous/', {
             method: 'POST',
             body: { anonymous_cart_id: guestCartId },
+            // Authenticated request, apiClient will add Bearer token
             });
             toast({ title: "انتقال سبد خرید", description: "اقلام سبد خرید مهمان شما به حساب کاربری‌تان منتقل شد." });
         }
       } catch (error: any)
       {
-        // Handle cases where guest cart might not exist on backend anymore, or other migration errors
         if (error.message && (error.message.includes("404") || error.message.toLowerCase().includes("not found"))) {
             console.warn("Guest cart for migration not found on backend, proceeding without migration.");
         } else {
@@ -135,28 +134,31 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         }
       } finally {
         localStorage.removeItem(ANONYMOUS_CART_ID_STORAGE_KEY);
-        setAnonymousCartId(null);
+        setAnonymousCartId(null); // Clear anonymous cart ID after attempting migration
       }
     }
-    await syncUserCartWithBackend();
+    // Always sync with backend user cart after login, regardless of migration
+    await syncUserCartWithBackend(); 
     setIsLoading(false);
-  }, [user, token, syncUserCartWithBackend, toast]);
+  }, [user, syncUserCartWithBackend, toast]);
 
   useEffect(() => {
-    if (!isAuthLoading) {
-      if (user && token) {
+    if (!isAuthLoading) { // Wait for auth state to be determined
+      if (user) { // User is logged in
         handleUserLogin();
-      } else {
+      } else { // User is not logged in (guest)
         const storedAnonId = localStorage.getItem(ANONYMOUS_CART_ID_STORAGE_KEY);
         if (storedAnonId) {
           setAnonymousCartId(storedAnonId);
           fetchAnonymousCartItems(storedAnonId);
         } else {
-          setCartItems([]);
+          setCartItems([]); // No anonymous cart ID, so cart is empty
+          // Optionally, call checkOrCreateAnonymousCart here if you want a cart to be ready immediately
+          // checkOrCreateAnonymousCart(); 
         }
       }
     }
-  }, [user, token, isAuthLoading, handleUserLogin, fetchAnonymousCartItems]);
+  }, [user, isAuthLoading, handleUserLogin, fetchAnonymousCartItems, checkOrCreateAnonymousCart]);
 
 
   const addItemToCart = async (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
@@ -164,7 +166,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const quantityToAdd = item.quantity || 1;
 
     try {
-      if (user && token) {
+      if (user) {
         const updatedCart = await apiClient<CartItem[]>('/api/cart/add/', {
           method: 'POST',
           body: { productId: item.id, quantity: quantityToAdd },
@@ -181,7 +183,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         setCartItems(response.items || []);
       }
       toast({ title: "اضافه شد!", description: `«${item.name}» به سبد خرید شما اضافه شد.` });
-      // openCart(); // Already handled in ProductCard
     } catch (error: any) {
       console.error("Failed to add item to cart:", error);
       toast({ title: "خطا", description: error.message || "خطا در افزودن آیتم به سبد خرید.", variant: "destructive" });
@@ -193,14 +194,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const removeItemFromCart = async (itemId: string | number) => {
     setIsLoading(true);
     try {
-      if (user && token) {
+      if (user) {
         const updatedCart = await apiClient<CartItem[]>('/api/cart/remove/', {
           method: 'POST',
           body: { productId: itemId },
         });
         setCartItems(updatedCart || []);
       } else {
-        const cartId = anonymousCartId; // Should exist if there are items to remove
+        const cartId = anonymousCartId; 
         if (!cartId) {
             console.warn("Attempted to remove item from non-existent anonymous cart.");
             setIsLoading(false);
@@ -229,19 +230,20 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
     setIsLoading(true);
     try {
-      if (user && token) {
+      if (user) {
         const updatedCart = await apiClient<CartItem[]>('/api/cart/update/', {
           method: 'POST',
           body: { productId: itemId, quantity },
         });
         setCartItems(updatedCart || []);
       } else {
-        const cartId = anonymousCartId; // Should exist
+        const cartId = anonymousCartId; 
         if (!cartId) {
             console.warn("Attempted to update item quantity in non-existent anonymous cart.");
             setIsLoading(false);
             return;
         }
+        // Assuming endpoint /api/anonymous-cart/{uuid}/update-item/
         const response = await apiClient<AnonymousCartAPIResponse>(`/api/anonymous-cart/${cartId}/update-item/`, {
           method: 'POST',
           body: { productId: itemId, quantity },
@@ -261,16 +263,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const clearCart = async () => {
     setIsLoading(true);
     try {
-      if (user && token) {
+      if (user) {
         await apiClient<void>('/api/cart/clear/', { method: 'POST' });
         setCartItems([]);
       } else {
         const cartId = anonymousCartId;
         if (cartId) {
+          // Assuming endpoint /api/anonymous-cart/{uuid}/clear/
           await apiClient<void>(`/api/anonymous-cart/${cartId}/clear/`, { method: 'POST', skipAuth: true });
           setCartItems([]);
         } else {
-           setCartItems([]);
+           setCartItems([]); // If no cartId, just clear local state
         }
       }
       toast({ title: "سبد خرید پاک شد!" });
@@ -296,7 +299,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const getTotalNumeric = (): number => {
     return cartItems.reduce((sum, item) => {
-        // Ensure price is treated as a number.
         const priceValue = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
         return sum + (isNaN(priceValue) ? 0 : priceValue * item.quantity);
     }, 0);
