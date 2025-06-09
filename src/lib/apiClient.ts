@@ -14,10 +14,19 @@ function getCookie(name: string): string | null {
 
 interface RequestOptions extends RequestInit {
   isFormData?: boolean;
-  // body can be an object for JSON, or FormData
   body?: any;
-  skipAuth?: boolean; // Option to skip sending Authorization header
+  skipAuth?: boolean;
+  isRetry?: boolean; // To prevent infinite refresh loops
 }
+
+// Define a function type for refreshing the token, to be provided by AuthContext
+type RefreshTokenFunction = () => Promise<string | null>;
+let refreshTokenFunction: RefreshTokenFunction | null = null;
+
+export function setRefreshTokenFunction(fn: RefreshTokenFunction) {
+  refreshTokenFunction = fn;
+}
+
 
 async function apiClient<T>(
   endpoint: string,
@@ -46,8 +55,6 @@ async function apiClient<T>(
   if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method.toUpperCase())) {
     const csrfToken = getCookie('csrftoken');
     if (csrfToken) {
-      // Note: CSRF token might not be needed for all JWT setups if APIs are stateless
-      // and sessions aren't used. Check your Django JWT configuration.
       headers['X-CSRFToken'] = csrfToken;
     }
   }
@@ -60,21 +67,39 @@ async function apiClient<T>(
   if (options.body && !options.isFormData) {
     config.body = JSON.stringify(options.body);
   } else if (options.body && options.isFormData) {
-    config.body = options.body; // FormData is passed directly
+    config.body = options.body;
   }
 
-
-  const response = await fetch(url, config);
+  let response = await fetch(url, config);
 
   if (!response.ok) {
+    if (response.status === 401 && !options.skipAuth && !options.isRetry && refreshTokenFunction) {
+      try {
+        const newAccessToken = await refreshTokenFunction();
+        if (newAccessToken) {
+          // Update header with new token
+          (config.headers as Record<string, string>)['Authorization'] = `Bearer ${newAccessToken}`;
+          // Retry the original request
+          response = await fetch(url, { ...config, isRetry: true });
+          if (response.ok) {
+            if (response.status === 204) return null as T;
+            return response.json();
+          }
+        }
+      } catch (refreshError) {
+        console.error("Token refresh failed, user will be logged out:", refreshError);
+        // If refresh fails, proceed to throw the original error or a specific refresh error
+        // AuthContext should handle actual logout if refresh fails globally
+      }
+    }
+
+    // If still not ok (or refresh didn't happen/succeed), process the error
     let errorData;
     let errorMessage = `Request failed with status ${response.status}`;
     try {
       errorData = await response.json();
-      // Prefer a specific 'detail' or 'message' key from Django REST Framework errors
-      errorMessage = errorData.detail || errorData.message || (typeof errorData === 'string' ? errorData : JSON.stringify(errorData));
+      errorMessage = errorData.detail || errorData.message || (errorData.non_field_errors ? errorData.non_field_errors.join(', ') : null) || (typeof errorData === 'string' ? errorData : JSON.stringify(errorData));
     } catch (e) {
-      // If response is not JSON, use statusText or a generic message
       errorMessage = response.statusText || errorMessage;
     }
     console.error('API Error:', response.status, errorMessage, errorData);
@@ -89,4 +114,3 @@ async function apiClient<T>(
 }
 
 export default apiClient;
-

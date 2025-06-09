@@ -30,7 +30,7 @@ const navItems = [
 export function Navbar() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuth(); // user object now contains { username, email }
   const { cartItems, toggleCart: openCartDrawer } = useCart();
   const [mounted, setMounted] = useState(false);
 
@@ -75,15 +75,16 @@ export function Navbar() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                       <Avatar className="h-9 w-9">
-                        <AvatarImage src={user.avatarUrl || `https://placehold.co/100x100.png?text=${user.name?.charAt(0) || 'ک'}`} alt={user.name || "کاربر"} data-ai-hint="user avatar" />
-                        <AvatarFallback>{user.name?.charAt(0).toUpperCase() || 'ک'}</AvatarFallback>
+                        {/* Avatar image can be added if profile endpoint returns an avatar URL */}
+                        <AvatarImage src={`https://placehold.co/100x100.png?text=${user.username?.charAt(0) || 'ک'}`} alt={user.username || "کاربر"} data-ai-hint="user avatar" />
+                        <AvatarFallback>{user.username?.charAt(0).toUpperCase() || 'ک'}</AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 text-right">
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">سلام، {user.name || 'کاربر گرامی'}</p>
+                        <p className="text-sm font-medium leading-none">سلام، {user.username || 'کاربر گرامی'}</p>
                         <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
                       </div>
                     </DropdownMenuLabel>
@@ -137,7 +138,7 @@ export function Navbar() {
                   <div className="mt-auto pt-6 border-t border-border">
                     {mounted && user ? (
                       <div className="flex flex-col space-y-3">
-                        <span className="text-secondary font-medium text-center">سلام، {user.name || 'کاربر گرامی'}!</span>
+                        <span className="text-secondary font-medium text-center">سلام، {user.username || 'کاربر گرامی'}!</span>
                         <Button variant="outline" onClick={() => { logout(); setIsSheetOpen(false); }} className="w-full">خروج از حساب</Button>
                       </div>
                     ) : mounted ? (

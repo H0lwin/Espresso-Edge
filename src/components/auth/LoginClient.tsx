@@ -14,8 +14,9 @@ import { CoffeeCupIcon } from '@/components/shared/CoffeeCupIcon';
 import { AnimatedPage } from '@/components/shared/AnimatedPage';
 import { motion } from 'framer-motion';
 
+// Schema updated to use username for login as per API spec
 const loginSchema = z.object({
-  email: z.string().email({ message: "لطفاً یک آدرس ایمیل معتبر وارد کنید." }),
+  username: z.string().min(1, { message: "لطفاً نام کاربری خود را وارد کنید." }),
   password: z.string().min(6, { message: "رمز عبور باید حداقل ۶ کاراکتر باشد." }),
 });
 
@@ -29,19 +30,12 @@ export default function LoginClient() {
   });
 
   const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
-    const success = await login(data.email, data.password);
+    // Call login with username and password
+    const success = await login(data.username, data.password);
     if (success) {
-      toast({
-        title: "ورود موفق",
-        description: "خوش آمدید!",
-      });
-      // Redirection is handled by AuthContext
+      // Toast and redirection are handled by AuthContext now
     } else {
-      toast({
-        title: "خطا در ورود",
-        description: "ایمیل یا رمز عبور نامعتبر است. لطفاً دوباره تلاش کنید.",
-        variant: "destructive",
-      });
+      // Error toast is handled by AuthContext
     }
   };
 
@@ -65,15 +59,15 @@ export default function LoginClient() {
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
-              <Label htmlFor="email" className="float-right">ایمیل</Label>
+              <Label htmlFor="username" className="float-right">نام کاربری</Label>
               <Input
-                id="email"
-                type="email"
-                autoComplete="email"
+                id="username"
+                type="text"
+                autoComplete="username"
                 className="text-right mt-1"
-                {...register("email")}
+                {...register("username")}
               />
-              {errors.email && <p className="mt-1 text-sm text-destructive">{errors.email.message}</p>}
+              {errors.username && <p className="mt-1 text-sm text-destructive">{errors.username.message}</p>}
             </div>
 
             <div>

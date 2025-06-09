@@ -14,8 +14,9 @@ import { CoffeeCupIcon } from '@/components/shared/CoffeeCupIcon';
 import { AnimatedPage } from '@/components/shared/AnimatedPage';
 import { motion } from 'framer-motion';
 
+// Schema updated to use username, email, password as per API spec
 const registerSchema = z.object({
-  name: z.string().min(2, { message: "نام باید حداقل ۲ کاراکتر باشد." }),
+  username: z.string().min(3, { message: "نام کاربری باید حداقل ۳ کاراکتر باشد." }),
   email: z.string().email({ message: "لطفاً یک آدرس ایمیل معتبر وارد کنید." }),
   password: z.string().min(6, { message: "رمز عبور باید حداقل ۶ کاراکتر باشد." }),
 });
@@ -30,19 +31,12 @@ export default function RegisterClient() {
   });
 
   const onSubmit: SubmitHandler<RegisterFormData> = async (data) => {
-    const success = await registerUser(data.name, data.email, data.password);
+    // Call registerUser with username, email, password
+    const success = await registerUser(data.username, data.email, data.password);
     if (success) {
-      toast({
-        title: "ثبت نام موفق",
-        description: "حساب کاربری شما ایجاد شد. خوش آمدید!",
-      });
-      // Redirection is handled by AuthContext
+      // Toast and redirection are handled by AuthContext now
     } else {
-      toast({
-        title: "خطا در ثبت نام",
-        description: "مشکلی پیش آمد. لطفاً دوباره تلاش کنید.",
-        variant: "destructive",
-      });
+      // Error toast is handled by AuthContext
     }
   };
 
@@ -66,15 +60,15 @@ export default function RegisterClient() {
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
-              <Label htmlFor="name" className="float-right">نام کامل</Label>
+              <Label htmlFor="username" className="float-right">نام کاربری</Label>
               <Input
-                id="name"
+                id="username"
                 type="text"
-                autoComplete="name"
+                autoComplete="username"
                 className="text-right mt-1"
-                {...register("name")}
+                {...register("username")}
               />
-              {errors.name && <p className="mt-1 text-sm text-destructive">{errors.name.message}</p>}
+              {errors.username && <p className="mt-1 text-sm text-destructive">{errors.username.message}</p>}
             </div>
             <div>
               <Label htmlFor="email" className="float-right">ایمیل</Label>
@@ -114,4 +108,3 @@ export default function RegisterClient() {
     </AnimatedPage>
   );
 }
-
