@@ -27,7 +27,7 @@ export function MenuClientContent({ initialItems }: MenuClientContentProps) {
   const [activeCategory, setActiveCategory] = useState<'All' | MenuItemCategory>('All');
 
   const filteredItems = useMemo(() => {
-    return initialItems.filter(item => {
+    return (initialItems || []).filter(item => {
       const matchesCategory = activeCategory === 'All' || item.category === activeCategory;
       const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                             item.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -70,7 +70,7 @@ export function MenuClientContent({ initialItems }: MenuClientContentProps) {
       </div>
 
       {filteredItems.length > 0 ? (
-          <motion.div 
+          <motion.div
             layout
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-10"
           >
@@ -91,7 +91,7 @@ export function MenuClientContent({ initialItems }: MenuClientContentProps) {
             </AnimatePresence>
           </motion.div>
       ) : (
-        <motion.p 
+        <motion.p
           className="text-center text-muted-foreground text-lg py-10"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
