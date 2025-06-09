@@ -32,8 +32,23 @@ async function apiClient<T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || '';
-  const url = `${apiBaseUrl}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`;
+  const IS_SERVER = typeof window === 'undefined';
+  let resolvedApiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  if (IS_SERVER && !resolvedApiBaseUrl) {
+    // Default for server-side calls (e.g., Server Components) during local development
+    resolvedApiBaseUrl = 'http://127.0.0.1:8000'; // Common local Django dev port
+    console.warn(
+      `NEXT_PUBLIC_API_BASE_URL is not set for a server-side call. Defaulting to ${resolvedApiBaseUrl}. Ensure this is configured for production.`
+    );
+  } else if (!resolvedApiBaseUrl) {
+    // For client-side calls, if not set, paths will be relative to the current origin.
+    resolvedApiBaseUrl = '';
+  }
+
+  // Ensure endpoint starts with a slash if apiBaseUrl is present, or is relative if not.
+  const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = `${resolvedApiBaseUrl}${path}`;
 
   const headers: HeadersInit = {
     ...options.headers,
@@ -80,7 +95,7 @@ async function apiClient<T>(
           // Update header with new token
           (config.headers as Record<string, string>)['Authorization'] = `Bearer ${newAccessToken}`;
           // Retry the original request
-          response = await fetch(url, { ...config, isRetry: true });
+          response = await fetch(url, { ...config, isRetry: true } as RequestOptions); // Cast to ensure isRetry is part of type
           if (response.ok) {
             if (response.status === 204) return null as T;
             return response.json();
