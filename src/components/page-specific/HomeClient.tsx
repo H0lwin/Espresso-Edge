@@ -8,7 +8,7 @@ import { ProductCard } from '@/components/sections/menu/ProductCard';
 import { AnimatedPage } from '@/components/shared/AnimatedPage';
 import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
-import type { MenuItem, MenuItemCategory } from '@/app/menu/page'; // MenuItem price is now number
+import type { MenuItem } from '@/app/menu/page'; // MenuItem price is now number
 import { useEffect, useState } from 'react';
 import apiClient from '@/lib/apiClient';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
@@ -26,20 +26,23 @@ export default function HomeClient() {
       setIsLoading(true);
       setError(null);
       try {
-        // Assume an endpoint like /api/products/featured or /api/menu-items/featured
-        // Or your backend might have a specific way to tag featured items.
-        // For now, let's assume it fetches a general list and we slice, or a specific endpoint.
-        const products = await apiClient<MenuItem[]>('/api/menu-items/featured'); // Placeholder
-        setFeaturedProducts(products.slice(0, 3)); // Example: take first 3 as featured
+        const products = await apiClient<MenuItem[]>('/api/menu-items/featured'); // Placeholder for your featured items endpoint
+        setFeaturedProducts(products ? products.slice(0, 3) : []);
       } catch (err: any) {
-        console.error("Failed to fetch featured products:", err);
-        setError("خطا در بارگذاری محصولات ویژه.");
-        toast({
-          title: "خطا",
-          description: "امکان بارگذاری محصولات ویژه وجود نداشت.",
-          variant: "destructive",
-        });
-        setFeaturedProducts([]); // Set to empty array on error
+        console.error("Failed to fetch featured products:", err); // This log is kept for debugging
+        if (err.message && err.message.includes("404")) {
+          // If 404, it means no featured products endpoint or no items found.
+          // We don't set a generic error message; the UI will show "No featured products..."
+          setError(null); 
+        } else {
+          setError("خطا در بارگذاری محصولات ویژه.");
+          toast({
+            title: "خطا",
+            description: "امکان بارگذاری محصولات ویژه وجود نداشت. لطفاً بعداً دوباره تلاش کنید.",
+            variant: "destructive",
+          });
+        }
+        setFeaturedProducts([]); // Ensure products array is empty on any error
       } finally {
         setIsLoading(false);
       }
