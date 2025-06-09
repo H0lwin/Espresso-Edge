@@ -6,22 +6,52 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ProductCard } from '@/components/sections/menu/ProductCard';
 import { AnimatedPage } from '@/components/shared/AnimatedPage';
-import { ArrowLeft } from 'lucide-react'; 
+import { ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
-import type { MenuItemCategory } from '@/app/menu/page';
+import type { MenuItem, MenuItemCategory } from '@/app/menu/page'; // MenuItem price is now number
+import { useEffect, useState } from 'react';
+import apiClient from '@/lib/apiClient';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function HomeClient() {
-  const featuredProducts: Array<{ id: string; name: string; description: string; price: string; imageSrc: string; imageHint: string; category: MenuItemCategory;}> = [
-    { id: 'hc1', name: 'اسپرسو ویژه', description: 'غنی و پررنگ، یک کلاسیک واقعی برای شروع روز شما.', price: '۱۲۰،۰۰۰ تومان', imageSrc: 'https://placehold.co/400x300.png', imageHint: 'espresso coffee', category: 'نوشیدنی‌های گرم' },
-    { id: 'hc2', name: 'لاته هنری', description: 'اسپرسوی نرم با شیر کاملاً بخارپز شده و کمی هنر.', price: '۱۸۰،۰۰۰ تومان', imageSrc: 'https://placehold.co/400x300.png', imageHint: 'latte art', category: 'نوشیدنی‌های گرم' },
-    { id: 'hc3', name: 'کروسان تازه پخته شده', description: 'پفکی، کره‌ای و روزانه تازه پخته می‌شود. کاملاً با هر قهوه‌ای ست می‌شود.', price: '۹۰،۰۰۰ تومان', imageSrc: 'https://placehold.co/400x300.png', imageHint: 'croissant pastry', category: 'کیک و دسر' },
-  ];
+  const [featuredProducts, setFeaturedProducts] = useState<MenuItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        // Assume an endpoint like /api/products/featured or /api/menu-items/featured
+        // Or your backend might have a specific way to tag featured items.
+        // For now, let's assume it fetches a general list and we slice, or a specific endpoint.
+        const products = await apiClient<MenuItem[]>('/api/menu-items/featured'); // Placeholder
+        setFeaturedProducts(products.slice(0, 3)); // Example: take first 3 as featured
+      } catch (err: any) {
+        console.error("Failed to fetch featured products:", err);
+        setError("خطا در بارگذاری محصولات ویژه.");
+        toast({
+          title: "خطا",
+          description: "امکان بارگذاری محصولات ویژه وجود نداشت.",
+          variant: "destructive",
+        });
+        setFeaturedProducts([]); // Set to empty array on error
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchFeaturedProducts();
+  }, [toast]);
+
 
   const heroVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       transition: { staggerChildren: 0.2, delayChildren: 0.3, duration: 0.5 }
     },
@@ -47,7 +77,7 @@ export default function HomeClient() {
           data-ai-hint="coffee shop interior"
         />
         <div className="absolute inset-0 bg-black/50 z-10"></div>
-        <motion.div 
+        <motion.div
           className="relative z-20 p-4 container mx-auto"
           variants={heroVariants}
           initial="hidden"
@@ -72,7 +102,7 @@ export default function HomeClient() {
       {/* Featured Products Section */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.h2 
+          <motion.h2
             className="text-4xl md:text-5xl font-headline text-center text-primary mb-12 md:mb-16"
             initial={{ opacity: 0, y:20 }}
             whileInView={{ opacity: 1, y:0 }}
@@ -81,27 +111,34 @@ export default function HomeClient() {
           >
             نوشیدنی‌های ویژه ما
           </motion.h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-            {featuredProducts.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <ProductCard
-                  id={product.id}
-                  name={product.name}
-                  description={product.description}
-                  price={product.price}
-                  imageSrc={product.imageSrc}
-                  imageHint={product.imageHint}
-                  category={product.category}
-                />
-              </motion.div>
-            ))}
-          </div>
+          {isLoading && <div className="flex justify-center"><LoadingSpinner /></div>}
+          {error && <p className="text-center text-destructive">{error}</p>}
+          {!isLoading && !error && featuredProducts.length === 0 && (
+            <p className="text-center text-muted-foreground">محصول ویژه‌ای برای نمایش وجود ندارد.</p>
+          )}
+          {!isLoading && !error && featuredProducts.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+              {featuredProducts.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <ProductCard
+                    id={product.id}
+                    name={product.name}
+                    description={product.description}
+                    price={product.price} // price is number
+                    imageSrc={product.imageSrc}
+                    imageHint={product.imageHint}
+                    category={product.category}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

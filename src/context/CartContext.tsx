@@ -2,45 +2,35 @@
 "use client";
 
 import type { ReactNode } from 'react';
-<<<<<<< HEAD
-import { createContext, useContext, useState, useEffect } from 'react';
-import type { MenuItem } from '@/app/menu/page'; // Assuming this type structure
-=======
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { MenuItem } from '@/app/menu/page';
+import type { MenuItem } from '@/app/menu/page'; // MenuItem now has price: number
 import { useAuth } from './AuthContext';
 import apiClient from '@/lib/apiClient';
 import { useToast } from '@/hooks/use-toast';
->>>>>>> 865b30b (A backend developer has requested a change in the frontend of the site.)
 
-export interface CartItem extends MenuItem { // Extend MenuItem or define a specific CartItemType
+export interface CartItem extends MenuItem { // price is now number
   quantity: number;
 }
 
-interface AnonymousCart {
+interface AnonymousCartAPIResponse {
   uuid: string;
-  items: CartItem[];
+  items: CartItem[]; // Assuming API returns items matching CartItem structure (price as number)
 }
+
 
 interface CartContextType {
   cartItems: CartItem[];
   isCartOpen: boolean;
-<<<<<<< HEAD
-  addItemToCart: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
-  removeItemFromCart: (itemId: string) => void;
-  updateItemQuantity: (itemId: string, quantity: number) => void;
-  clearCart: () => void;
-=======
-  isLoading: boolean; // Global loading state for cart operations
+  isLoading: boolean;
   addItemToCart: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => Promise<void>;
   removeItemFromCart: (itemId: string | number) => Promise<void>;
   updateItemQuantity: (itemId: string | number, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
->>>>>>> 865b30b (A backend developer has requested a change in the frontend of the site.)
   toggleCart: () => void;
   openCart: () => void;
   closeCart: () => void;
-  getCartTotal: () => string; // Returns formatted total price string
+  getCartTotal: () => string;
+  getTotalNumeric: () => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -50,37 +40,7 @@ const ANONYMOUS_CART_ID_STORAGE_KEY = 'espressoEdgeAnonymousCartId';
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-<<<<<<< HEAD
-
-  // Load cart from localStorage on mount
-  useEffect(() => {
-    const storedCart = localStorage.getItem('espressoEdgeCart');
-    if (storedCart) {
-      setCartItems(JSON.parse(storedCart));
-    }
-  }, []);
-
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('espressoEdgeCart', JSON.stringify(cartItems));
-  }, [cartItems]);
-
-  const addItemToCart = (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(ci => ci.id === item.id);
-      if (existingItem) {
-        return prevItems.map(ci =>
-          ci.id === item.id ? { ...ci, quantity: ci.quantity + (item.quantity || 1) } : ci
-        );
-      }
-      return [...prevItems, { ...item, quantity: item.quantity || 1 }];
-    });
-  };
-
-  const removeItemFromCart = (itemId: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
-=======
-  const [isLoading, setIsLoading] = useState(false); // For cart operations
+  const [isLoading, setIsLoading] = useState(false);
   const [anonymousCartId, setAnonymousCartId] = useState<string | null>(null);
   const { user, token, isLoading: isAuthLoading } = useAuth();
   const { toast } = useToast();
@@ -96,11 +56,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
     setIsLoading(true);
     try {
-      const response = await apiClient<AnonymousCart>('/anonymous-cart/create/', { method: 'POST' });
+      const response = await apiClient<AnonymousCartAPIResponse>('/api/anonymous-cart/create/', { method: 'POST', skipAuth: true });
       if (response && response.uuid) {
         localStorage.setItem(ANONYMOUS_CART_ID_STORAGE_KEY, response.uuid);
         setAnonymousCartId(response.uuid);
-        setCartItems(response.items || []); // API should return items
+        setCartItems(response.items || []);
         setIsLoading(false);
         return response.uuid;
       }
@@ -116,32 +76,32 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const fetchAnonymousCartItems = useCallback(async (cartId: string) => {
     setIsLoading(true);
     try {
-      const response = await apiClient<AnonymousCart>(`/anonymous-cart/${cartId}/`);
+      const response = await apiClient<AnonymousCartAPIResponse>(`/api/anonymous-cart/${cartId}/`, { skipAuth: true });
       setCartItems(response.items || []);
     } catch (error: any) {
       console.error("Failed to fetch anonymous cart items:", error);
-      // If cart not found (e.g. expired UUID on backend), clear local ID and create a new one
-      if (error.message && error.message.includes("404")) { // Or specific error code
+      if (error.message && (error.message.includes("404") || error.message.toLowerCase().includes("not found"))) {
         localStorage.removeItem(ANONYMOUS_CART_ID_STORAGE_KEY);
         setAnonymousCartId(null);
-        await checkOrCreateAnonymousCart(); // This will create a new one and fetch its (empty) items
+        // Don't automatically create a new one here, let actions trigger it or first load.
+        setCartItems([]); // Clear items if cart was not found
       } else {
         toast({ title: "خطا", description: error.message || "خطا در دریافت سبد خرید مهمان.", variant: "destructive" });
       }
     } finally {
       setIsLoading(false);
     }
-  }, [toast, checkOrCreateAnonymousCart]);
+  }, [toast]);
 
   const syncUserCartWithBackend = useCallback(async () => {
     if (!user || !token) return;
     setIsLoading(true);
     try {
-      const backendCart = await apiClient<CartItem[]>('/cart/');
+      const backendCart = await apiClient<CartItem[]>('/api/cart/'); // Assumes this endpoint returns CartItem[]
       setCartItems(backendCart || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to sync user cart with backend:", error);
-      toast({ title: "خطا", description: "خطا در همگام‌سازی سبد خرید شما.", variant: "destructive" });
+      toast({ title: "خطا", description: error.message || "خطا در همگام‌سازی سبد خرید شما.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -156,24 +116,29 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     if (guestCartId) {
       try {
         // Check if anonymous cart has items before attempting migration
-        // This might be an extra fetch, or backend can handle empty guestCartId gracefully
-        const guestCart = await apiClient<AnonymousCart>(`/anonymous-cart/${guestCartId}/`);
+        const guestCart = await apiClient<AnonymousCartAPIResponse>(`/api/anonymous-cart/${guestCartId}/`, { skipAuth: true });
         if (guestCart && guestCart.items && guestCart.items.length > 0) {
-            await apiClient('/cart/migrate-anonymous/', {
+            await apiClient('/api/cart/migrate-anonymous/', {
             method: 'POST',
             body: { anonymous_cart_id: guestCartId },
             });
             toast({ title: "انتقال سبد خرید", description: "اقلام سبد خرید مهمان شما به حساب کاربری‌تان منتقل شد." });
         }
-      } catch (error: any) {
-        console.error("Failed to migrate anonymous cart:", error);
-        toast({ title: "خطا در انتقال", description: error.message || "خطا در انتقال سبد خرید مهمان.", variant: "destructive" });
+      } catch (error: any)
+      {
+        // Handle cases where guest cart might not exist on backend anymore, or other migration errors
+        if (error.message && (error.message.includes("404") || error.message.toLowerCase().includes("not found"))) {
+            console.warn("Guest cart for migration not found on backend, proceeding without migration.");
+        } else {
+            console.error("Failed to migrate anonymous cart:", error);
+            toast({ title: "خطا در انتقال", description: error.message || "خطا در انتقال سبد خرید مهمان.", variant: "destructive" });
+        }
       } finally {
         localStorage.removeItem(ANONYMOUS_CART_ID_STORAGE_KEY);
         setAnonymousCartId(null);
       }
     }
-    await syncUserCartWithBackend(); // Fetch authenticated user's cart (now potentially merged)
+    await syncUserCartWithBackend();
     setIsLoading(false);
   }, [user, token, syncUserCartWithBackend, toast]);
 
@@ -182,16 +147,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       if (user && token) {
         handleUserLogin();
       } else {
-        // Guest user
-        localStorage.removeItem('espressoEdgeGuestCart'); // Clear old guest cart mechanism
         const storedAnonId = localStorage.getItem(ANONYMOUS_CART_ID_STORAGE_KEY);
         if (storedAnonId) {
           setAnonymousCartId(storedAnonId);
           fetchAnonymousCartItems(storedAnonId);
         } else {
-          // Don't create a cart immediately on load, wait for user action.
-          // checkOrCreateAnonymousCart will be called by cart operations if needed.
-          setCartItems([]); // Ensure cart is empty if no ID
+          setCartItems([]);
         }
       }
     }
@@ -201,11 +162,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const addItemToCart = async (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => {
     setIsLoading(true);
     const quantityToAdd = item.quantity || 1;
-    const itemPrice = item.price;
 
     try {
       if (user && token) {
-        const updatedCart = await apiClient<CartItem[]>('/cart/add/', {
+        const updatedCart = await apiClient<CartItem[]>('/api/cart/add/', {
           method: 'POST',
           body: { productId: item.id, quantity: quantityToAdd },
         });
@@ -213,14 +173,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       } else {
         const cartId = await checkOrCreateAnonymousCart();
         if (!cartId) throw new Error("سبد خرید مهمان در دسترس نیست.");
-        const response = await apiClient<AnonymousCart>(`/anonymous-cart/${cartId}/add-item/`, {
+        const response = await apiClient<AnonymousCartAPIResponse>(`/api/anonymous-cart/${cartId}/add-item/`, {
           method: 'POST',
           body: { productId: item.id, quantity: quantityToAdd },
+          skipAuth: true,
         });
         setCartItems(response.items || []);
       }
       toast({ title: "اضافه شد!", description: `«${item.name}» به سبد خرید شما اضافه شد.` });
-      openCart();
+      // openCart(); // Already handled in ProductCard
     } catch (error: any) {
       console.error("Failed to add item to cart:", error);
       toast({ title: "خطا", description: error.message || "خطا در افزودن آیتم به سبد خرید.", variant: "destructive" });
@@ -233,17 +194,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       if (user && token) {
-        const updatedCart = await apiClient<CartItem[]>('/cart/remove/', {
+        const updatedCart = await apiClient<CartItem[]>('/api/cart/remove/', {
           method: 'POST',
           body: { productId: itemId },
         });
         setCartItems(updatedCart || []);
       } else {
-        const cartId = anonymousCartId;
-        if (!cartId) throw new Error("سبد خرید مهمان در دسترس نیست.");
-        const response = await apiClient<AnonymousCart>(`/anonymous-cart/${cartId}/remove-item/`, {
+        const cartId = anonymousCartId; // Should exist if there are items to remove
+        if (!cartId) {
+            console.warn("Attempted to remove item from non-existent anonymous cart.");
+            setIsLoading(false);
+            return;
+        };
+        const response = await apiClient<AnonymousCartAPIResponse>(`/api/anonymous-cart/${cartId}/remove-item/`, {
           method: 'POST',
           body: { productId: itemId },
+          skipAuth: true,
         });
         setCartItems(response.items || []);
       }
@@ -254,43 +220,32 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
->>>>>>> 865b30b (A backend developer has requested a change in the frontend of the site.)
   };
 
-  const updateItemQuantity = (itemId: string, quantity: number) => {
+  const updateItemQuantity = async (itemId: string | number, quantity: number) => {
     if (quantity <= 0) {
-<<<<<<< HEAD
-      removeItemFromCart(itemId);
-    } else {
-      setCartItems(prevItems =>
-        prevItems.map(item =>
-          item.id === itemId ? { ...item, quantity } : item
-        )
-      );
-    }
-  };
-
-  const clearCart = () => {
-    setCartItems([]);
-=======
       await removeItemFromCart(itemId);
       return;
     }
     setIsLoading(true);
     try {
       if (user && token) {
-        const updatedCart = await apiClient<CartItem[]>('/cart/update/', {
+        const updatedCart = await apiClient<CartItem[]>('/api/cart/update/', {
           method: 'POST',
           body: { productId: itemId, quantity },
         });
         setCartItems(updatedCart || []);
       } else {
-        const cartId = anonymousCartId;
-        if (!cartId) throw new Error("سبد خرید مهمان در دسترس نیست.");
-        // Assuming an endpoint for updating quantity in anonymous cart
-        const response = await apiClient<AnonymousCart>(`/anonymous-cart/${cartId}/update-item/`, {
+        const cartId = anonymousCartId; // Should exist
+        if (!cartId) {
+            console.warn("Attempted to update item quantity in non-existent anonymous cart.");
+            setIsLoading(false);
+            return;
+        }
+        const response = await apiClient<AnonymousCartAPIResponse>(`/api/anonymous-cart/${cartId}/update-item/`, {
           method: 'POST',
           body: { productId: itemId, quantity },
+          skipAuth: true,
         });
         setCartItems(response.items || []);
       }
@@ -307,20 +262,15 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       if (user && token) {
-        await apiClient<void>('/cart/clear/', { method: 'POST' });
+        await apiClient<void>('/api/cart/clear/', { method: 'POST' });
         setCartItems([]);
       } else {
         const cartId = anonymousCartId;
         if (cartId) {
-          // Assuming an endpoint for clearing anonymous cart
-          await apiClient<void>(`/anonymous-cart/${cartId}/clear/`, { method: 'POST' });
+          await apiClient<void>(`/api/anonymous-cart/${cartId}/clear/`, { method: 'POST', skipAuth: true });
           setCartItems([]);
-          // Optionally clear anonymousCartId from localStorage if preferred,
-          // or let it persist for the next session (new cart will be created if old one is gone on backend)
-          // localStorage.removeItem(ANONYMOUS_CART_ID_STORAGE_KEY);
-          // setAnonymousCartId(null);
         } else {
-           setCartItems([]); // If no cartId, just clear local state
+           setCartItems([]);
         }
       }
       toast({ title: "سبد خرید پاک شد!" });
@@ -330,46 +280,35 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setIsLoading(false);
     }
->>>>>>> 865b30b (A backend developer has requested a change in the frontend of the site.)
   };
 
   const toggleCart = () => {
     setIsCartOpen(prev => !prev);
   };
 
-<<<<<<< HEAD
   const openCart = () => {
     setIsCartOpen(true);
   };
-  
+
   const closeCart = () => {
     setIsCartOpen(false);
-=======
+  };
+
   const getTotalNumeric = (): number => {
-    return cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return cartItems.reduce((sum, item) => {
+        // Ensure price is treated as a number.
+        const priceValue = typeof item.price === 'string' ? parseFloat(item.price) : item.price;
+        return sum + (isNaN(priceValue) ? 0 : priceValue * item.quantity);
+    }, 0);
   };
 
   const getCartTotal = (): string => {
     const total = getTotalNumeric();
     return `${total.toLocaleString('fa-IR')} تومان`;
->>>>>>> 865b30b (A backend developer has requested a change in the frontend of the site.)
-  };
-
-  const getCartTotal = (): string => {
-    const total = cartItems.reduce((sum, item) => {
-      // Basic price parsing (e.g., "120,000 تومان" -> 120000)
-      // This is a simplification and needs robust parsing for real-world currency
-      const priceNumber = parseFloat(item.price.replace(/[^0-9.-]+/g,""));
-      return sum + (isNaN(priceNumber) ? 0 : priceNumber * item.quantity);
-    }, 0);
-    return `${total.toLocaleString('fa-IR')} تومان`; // Format for Persian
   };
 
 
   return (
-<<<<<<< HEAD
-    <CartContext.Provider value={{ cartItems, isCartOpen, addItemToCart, removeItemFromCart, updateItemQuantity, clearCart, toggleCart, openCart, closeCart, getCartTotal }}>
-=======
     <CartContext.Provider value={{
       cartItems, isCartOpen, isLoading,
       addItemToCart, removeItemFromCart, updateItemQuantity,
@@ -377,7 +316,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       toggleCart, openCart, closeCart,
       getCartTotal, getTotalNumeric
     }}>
->>>>>>> 865b30b (A backend developer has requested a change in the frontend of the site.)
       {children}
     </CartContext.Provider>
   );

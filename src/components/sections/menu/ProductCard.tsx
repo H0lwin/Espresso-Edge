@@ -4,33 +4,30 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Coffee, CakeSlice, Sandwich, PlusCircle, GlassWater, Milk } from 'lucide-react'; // Changed Milkshake to Milk
+import { Coffee, CakeSlice, Sandwich, PlusCircle, GlassWater, Milk } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useToast } from "@/hooks/use-toast";
 import type { MenuItem, MenuItemCategory } from '@/app/menu/page';
 
 interface ProductCardProps extends MenuItem {}
 
-const categoryIcons: Record<MenuItemCategory, React.ElementType> = {
+const categoryIconsMap: Record<MenuItemCategory, React.ElementType> = {
   'نوشیدنی‌های گرم': Coffee,
   'نوشیدنی‌های سرد': GlassWater,
-  'شیک و اسموتی': Milk, // Changed Milkshake to Milk
+  'شیک و اسموتی': Milk,
   'کیک و دسر': CakeSlice,
   'اسنک و میان‌وعده': Sandwich,
 };
 
 export function ProductCard({ id, name, description, price, imageSrc, imageHint, category }: ProductCardProps) {
-  const IconComponent = categoryIcons[category] || Coffee; // Default to Coffee if somehow category is not found
-  const { addItemToCart, openCart } = useCart();
+  const IconComponent = categoryIconsMap[category] || Coffee;
+  const { addItemToCart, openCart, isLoading: isCartLoading } = useCart();
   const { toast } = useToast();
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     const itemToAdd = { id, name, price, imageSrc, quantity: 1, category, description, imageHint };
-    addItemToCart(itemToAdd);
-    toast({
-      title: "اضافه شد!",
-      description: `«${name}» به سبد خرید شما اضافه شد.`,
-    });
+    await addItemToCart(itemToAdd); // addItemToCart is now async
+    // Toast is now handled within addItemToCart on success/failure
     openCart();
   };
 
@@ -45,7 +42,7 @@ export function ProductCard({ id, name, description, price, imageSrc, imageHint,
     >
       <div className="relative w-full h-48 sm:h-56">
         <Image
-          src={imageSrc}
+          src={imageSrc || 'https://placehold.co/400x300.png'}
           alt={name}
           fill
           style={{objectFit:"cover"}}
@@ -60,11 +57,19 @@ export function ProductCard({ id, name, description, price, imageSrc, imageHint,
         </div>
         <p className="text-sm text-muted-foreground mb-4 flex-grow">{description}</p>
         <div className="flex justify-between items-baseline mt-auto">
-          <Button variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={handleAddToCart}>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" 
+            onClick={handleAddToCart}
+            disabled={isCartLoading}
+          >
             <PlusCircle className="ms-2 h-4 w-4" />
-            افزودن به سبد
+            {isCartLoading ? 'در حال افزودن...' : 'افزودن به سبد'}
           </Button>
-          <p className="text-lg font-semibold text-primary">{price}</p>
+          <p className="text-lg font-semibold text-primary">
+            {typeof price === 'number' ? price.toLocaleString('fa-IR') + ' تومان' : price}
+          </p>
         </div>
       </div>
     </motion.div>

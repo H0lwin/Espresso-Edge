@@ -7,6 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { MinusCircle, PlusCircle, Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -15,7 +16,14 @@ import { AnimatedPage } from '@/components/shared/AnimatedPage';
 import { motion } from 'framer-motion';
 
 export default function CartPageClient() {
-  const { cartItems, updateItemQuantity, removeItemFromCart, getCartTotal, clearCart } = useCart();
+  const { 
+    cartItems, 
+    updateItemQuantity, 
+    removeItemFromCart, 
+    getCartTotal, 
+    clearCart,
+    isLoading: isCartLoading 
+  } = useCart();
   const { user } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
@@ -29,11 +37,41 @@ export default function CartPageClient() {
       });
       router.push(`/auth/login?redirect=${encodeURIComponent('/cart')}`);
     } else {
+      if (cartItems.length === 0) {
+        toast({
+          title: "سبد خرید خالی",
+          description: "لطفاً ابتدا محصولی به سبد خرید خود اضافه کنید.",
+        });
+        return;
+      }
       router.push('/checkout');
     }
   };
+  
+  const handleUpdateQuantity = async (id: string | number, newQuantity: number) => {
+    await updateItemQuantity(id, newQuantity);
+  };
 
-  if (cartItems.length === 0) {
+  const handleRemoveItem = async (id: string | number) => {
+    await removeItemFromCart(id);
+  };
+  
+  const handleClearCart = async () => {
+    await clearCart();
+  };
+
+  if (isCartLoading && cartItems.length === 0) { // Show loader if cart is loading initially
+    return (
+      <AnimatedPage>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 text-center">
+          <ShoppingBag className="h-32 w-32 text-muted-foreground mx-auto mb-6 animate-pulse" />
+          <h1 className="text-3xl font-headline text-secondary mb-4">در حال بارگذاری سبد خرید...</h1>
+        </div>
+      </AnimatedPage>
+    )
+  }
+
+  if (!isCartLoading && cartItems.length === 0) {
     return (
       <AnimatedPage>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 text-center">
@@ -42,7 +80,7 @@ export default function CartPageClient() {
           <p className="text-muted-foreground mb-8">به نظر می‌رسد هنوز چیزی به سبد خرید خود اضافه نکرده‌اید.</p>
           <Button asChild size="lg">
             <Link href="/menu">
-              <ArrowLeft className="ms-2 h-5 w-5" /> {/* RTL */}
+              <ArrowLeft className="ms-2 h-5 w-5" />
               بازگشت به منو و شروع خرید
             </Link>
           </Button>
@@ -54,54 +92,56 @@ export default function CartPageClient() {
   return (
     <AnimatedPage>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 text-right">
-        <motion.h1 
+        <motion.h1
           className="text-4xl md:text-5xl font-headline text-center text-secondary mb-12"
           initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5}}
         >
           سبد خرید شما
         </motion.h1>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-          <motion.div 
+          <motion.div
             className="lg:col-span-2 space-y-6"
             initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }}
           >
             {cartItems.map(item => (
               <div key={item.id} className="flex items-start gap-4 p-4 border rounded-lg shadow-sm bg-card">
-                <Image 
-                  src={item.imageSrc} 
-                  alt={item.name} 
-                  width={100} 
-                  height={100} 
+                <Image
+                  src={item.imageSrc || 'https://placehold.co/100x100.png'}
+                  alt={item.name}
+                  width={100}
+                  height={100}
                   className="rounded-md object-cover w-24 h-24 sm:w-32 sm:h-32"
                   data-ai-hint={item.imageHint || 'product image'}
                 />
                 <div className="flex-grow">
                   <h3 className="text-lg font-semibold text-secondary">{item.name}</h3>
                   <p className="text-sm text-muted-foreground">{item.category}</p>
-                  <p className="text-md font-medium text-primary mt-1">{item.price}</p>
+                  <p className="text-md font-medium text-primary mt-1">
+                    {typeof item.price === 'number' ? item.price.toLocaleString('fa-IR') + ' تومان' : item.price}
+                  </p>
                   <div className="flex items-center gap-2 mt-3">
-                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateItemQuantity(item.id, item.quantity - 1)}>
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)} disabled={isCartLoading}>
                       <MinusCircle className="h-4 w-4" />
                     </Button>
                     <span className="w-10 text-center text-lg font-medium">{item.quantity}</span>
-                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateItemQuantity(item.id, item.quantity + 1)}>
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)} disabled={isCartLoading}>
                       <PlusCircle className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive self-start" onClick={() => removeItemFromCart(item.id)}>
+                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive self-start" onClick={() => handleRemoveItem(item.id)} disabled={isCartLoading}>
                   <Trash2 className="h-5 w-5" />
                   <span className="sr-only">حذف آیتم</span>
                 </Button>
               </div>
             ))}
-             <Button variant="link" size="sm" className="text-destructive mt-4" onClick={() => { clearCart(); toast({title: "سبد خرید پاک شد!"}) }}>
-              پاک کردن کل سبد خرید
+             <Button variant="link" size="sm" className="text-destructive mt-4" onClick={handleClearCart} disabled={isCartLoading}>
+              {isCartLoading ? 'در حال پاکسازی...' : 'پاک کردن کل سبد خرید'}
             </Button>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="lg:col-span-1 space-y-6 bg-card p-6 rounded-lg shadow-lg border h-fit sticky top-24"
             initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.4 }}
           >
@@ -121,19 +161,19 @@ export default function CartPageClient() {
               <span>مجموع کل:</span>
               <span>{getCartTotal()}</span>
             </div>
-            <div className="pt-2">
+            {/* <div className="pt-2">
               <Label htmlFor="discountCode" className="float-right mb-1">کد تخفیف</Label>
               <div className="flex gap-2">
                 <Input id="discountCode" type="text" placeholder="کد خود را وارد کنید" className="text-right flex-grow" />
                 <Button variant="outline">اعمال</Button>
               </div>
-            </div>
-            <Button size="lg" className="w-full mt-4 text-lg" onClick={handleCheckout}>
+            </div> */}
+            <Button size="lg" className="w-full mt-4 text-lg" onClick={handleCheckout} disabled={isCartLoading || cartItems.length === 0}>
               ادامه و پرداخت
             </Button>
             <Button asChild variant="outline" className="w-full mt-2">
               <Link href="/menu">
-                <ArrowLeft className="ms-2 h-4 w-4" /> {/* RTL */}
+                <ArrowLeft className="ms-2 h-4 w-4" />
                 بازگشت به خرید
               </Link>
             </Button>
