@@ -1,7 +1,30 @@
-# models.py
-
 from django.db import models
 from slugify import slugify
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=350)
+    slug = models.SlugField(unique=True, blank=True, allow_unicode=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name)
+            slug = base_slug
+            counter = 1
+            while CoffeeProduct.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = 'category'
+        verbose_name_plural = 'categories'
+
 
 class CoffeeProduct(models.Model):
     category = models.ForeignKey('categories.Category', on_delete=models.CASCADE, related_name='products')
